@@ -1,5 +1,7 @@
 package geometries.impl;
 
+import java.util.Objects;
+
 import geometries.api.Geometry;
 
 /**
@@ -45,4 +47,23 @@ public abstract class RadialGeometry extends Geometry {
         this.radiusSquared = radius * radius;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        RadialGeometry that = (RadialGeometry) o;
+        return Double.compare(radius, that.radius) == 0 && Double.compare(radiusSquared, that.radiusSquared) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(radius, radiusSquared);
+    }
+
+    @Override
+    public String toString() {
+        return "RadialGeometry{" +
+                "radius=" + radius +
+                ", radiusSquared=" + radiusSquared +
+                '}';
+    }
 }
