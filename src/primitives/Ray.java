@@ -10,10 +10,8 @@ package primitives;
  * Rays are commonly used in computational geometry and ray tracing algorithms.
  * </p>
  *
- * @author Dan Zilberstein
  */
 public class Ray {
-
     /**
      * The starting point of the ray.
      */
@@ -35,23 +33,22 @@ public class Ray {
         this.origin = origin;
         this.direction = direction.normalize();
     }
-}
 
-@Override
-public String toString() {
-    return origin + ", " + direction;
-}
+    @Override
+    public String toString() {
+        return origin + ", " + direction;
+    }
 
-@Override
-public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null || getClass() != obj.getClass()) return false;
-    Ray other = (Ray) obj;
-    return origin.equals(other.origin) && direction.equals(other.direction);
-}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Ray other = (Ray) obj;
+        return origin.equals(other.origin) && direction.equals(other.direction);
+    }
 
-@Override
-public int hashCode() {
-    return 31 * origin.hashCode() + direction.hashCode();
-}
+    @Override
+    public int hashCode() {
+        return 31 * origin.hashCode() + direction.hashCode();
+    }
 }
