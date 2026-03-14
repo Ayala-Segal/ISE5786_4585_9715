@@ -1,9 +1,9 @@
 package test;
 
 import geometries.impl.Plane;
-import geometries.impl.Point;
 import geometries.impl.Polygon;
 import primitives.Double3;
+import primitives.Point;
 
 import static java.lang.System.out;
 import static primitives.Util.isZero;

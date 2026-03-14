@@ -1,9 +1,7 @@
 /**
  *
  */
-package geometries.impl;
-
-import primitives.Double3;
+package primitives;
 
 /**
  * Represents a point in a three-dimensional Cartesian coordinate system.

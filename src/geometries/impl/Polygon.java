@@ -3,6 +3,7 @@ package geometries.impl;
 import java.util.List;
 
 import geometries.api.Geometry;
+import primitives.Point;
 
 import static primitives.Util.isZero;
 
