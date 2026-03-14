@@ -39,7 +39,7 @@ public class Point {
     /**
      * Constant representing the origin point (0,0,0).
      */
-    private static final Point ZERO = new Point(Double3.ZERO);
+    public static final Point ZERO = new Point(Double3.ZERO);
 
     /**
      * Constructs a point using explicit coordinate values.
