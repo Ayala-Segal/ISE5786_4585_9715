@@ -34,7 +34,7 @@ public class Point {
     /**
      * Internal representation of the point coordinates.
      */
-    private Double3 _xyz;
+    protected Double3 _xyz;
 
     /**
      * Constant representing the origin point (0,0,0).
@@ -98,13 +98,20 @@ public class Point {
      * @param other the point to measure distance from
      * @return the squared distance between the two points
      */
+//    public double distanceSquared(Point other) {
+//
+//        Double3 diff = this._xyz.subtract(other._xyz);
+//
+//        Double3 squaredDiff = diff.product(diff);
+//
+//        return squaredDiff._d1() + squaredDiff._d2() + squaredDiff._d3();
+//    }
     public double distanceSquared(Point other) {
+        double dx = this._xyz._d1() - other._xyz._d1();
+        double dy = this._xyz._d2() - other._xyz._d2();
+        double dz = this._xyz._d3() - other._xyz._d3();
 
-        Double3 diff = this._xyz.subtract(other._xyz);
-
-        Double3 squaredDiff = diff.product(diff);
-
-        return squaredDiff._d1() + squaredDiff._d2() + squaredDiff._d3();
+        return dx * dx + dy * dy + dz * dz;
     }
 
     /**
@@ -117,4 +124,21 @@ public class Point {
         return Math.sqrt(this.distanceSquared(other));
     }
 
+    @Override
+    public String toString() {
+        return "" + _xyz;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        return _xyz.equals(((Point) obj)._xyz);
+    }
+
+    @Override
+    public int hashCode() {
+        return _xyz.hashCode();
+    }
 }
+
