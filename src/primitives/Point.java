@@ -49,6 +49,7 @@ public class Point {
      * @param z the z-coordinate
      */
     public Point(double x, double y, double z) {
+
         this._xyz = new Double3(x, y, z);
     }
 
@@ -58,6 +59,7 @@ public class Point {
      * @param xyz the coordinate triad representing the point
      */
     public Point(Double3 xyz) {
+
         this._xyz = xyz;
     }
 
@@ -85,6 +87,7 @@ public class Point {
      * @return a new {@code Point} translated by the vector
      */
     public Point add(Vector vector) {
+
         return new Point(vector._xyz.add(this._xyz));
     }
 
@@ -98,14 +101,7 @@ public class Point {
      * @param other the point to measure distance from
      * @return the squared distance between the two points
      */
-//    public double distanceSquared(Point other) {
-//
-//        Double3 diff = this._xyz.subtract(other._xyz);
-//
-//        Double3 squaredDiff = diff.product(diff);
-//
-//        return squaredDiff._d1() + squaredDiff._d2() + squaredDiff._d3();
-//    }
+
     public double distanceSquared(Point other) {
         double dx = this._xyz._d1() - other._xyz._d1();
         double dy = this._xyz._d2() - other._xyz._d2();

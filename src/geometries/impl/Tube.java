@@ -5,6 +5,8 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import java.util.Objects;
+
 /**
  * Represents a tube (cylindrical surface) in three-dimensional space.
  * <p>
@@ -17,16 +19,12 @@ import primitives.Vector;
  * </p>
  */
 
-public class Tube extends Geometry {
+public class Tube extends RadialGeometry {
     /**
      * The axis of the tube, represented as a ray.
      */
-    protected Ray axis;
+    protected Ray _axis;
 
-    /**
-     * The radius of the tube.
-     */
-    protected double radius;
 
     /**
      * Constructs a tube with the specified axis and radius.
@@ -36,8 +34,8 @@ public class Tube extends Geometry {
      */
 
     public Tube(double radius, Ray axis) {
-        this.axis = axis;
-        this.radius = radius;
+        super(radius);
+        this._axis = axis;
     }
 
     @Override
@@ -47,7 +45,7 @@ public class Tube extends Geometry {
 
     @Override
     public String toString() {
-        return "axis: " + axis.toString() + ", radius: " + radius;
+        return super.toString() + "Tube: axis: " + _axis.toString();
     }
 
     @Override
@@ -55,12 +53,12 @@ public class Tube extends Geometry {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Tube other = (Tube) obj;
-        return axis.equals(other.axis) && Double.compare(radius, other.radius) == 0;
+        return _axis.equals(other._axis);
     }
 
     @Override
     public int hashCode() {
-        return 31 * axis.hashCode() + Double.hashCode(radius);
+        return Objects.hash(super.hashCode(), _axis.hashCode());
     }
 
 }

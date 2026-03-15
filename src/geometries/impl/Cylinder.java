@@ -1,6 +1,8 @@
 package geometries.impl;
 
+import primitives.Point;
 import primitives.Ray;
+import primitives.Vector;
 
 import java.util.Objects;
 
@@ -21,7 +23,7 @@ public class Cylinder extends Tube {
     /**
      * The height of the cylinder along its axis.
      */
-    private double height;
+    private final double _height;
 
     /**
      * Constructs a cylinder with the specified axis, radius, and height.
@@ -32,13 +34,18 @@ public class Cylinder extends Tube {
      */
     public Cylinder(double radius, Ray axis, double height) {
         super(radius, axis);
-        this.height = height;
+        this._height = height;
+    }
+
+    @Override
+    public final Vector getNormal(Point point) {
+        return null;
     }
 
     @Override
     public String toString() {
         return super.toString() +
-                "height=" + height;
+                "Cylinder: height=" + _height;
     }
 
     @Override
@@ -46,11 +53,11 @@ public class Cylinder extends Tube {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Cylinder cylinder = (Cylinder) o;
-        return Double.compare(height, cylinder.height) == 0;
+        return Double.compare(_height, cylinder._height) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), height);
+        return Objects.hash(super.hashCode(), _height);
     }
 }

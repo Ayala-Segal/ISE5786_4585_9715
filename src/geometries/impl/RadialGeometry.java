@@ -30,12 +30,12 @@ public abstract class RadialGeometry extends Geometry {
     /**
      * The radius of the geometry
      */
-    private double radius;
+    protected double _radius;
 
     /**
      * The squared radius of the geometry (precomputed)
      */
-    private double radiusSquared;
+    protected double _radiusSquared;
 
     /**
      * Constructs a radial geometry with the specified radius.
@@ -43,27 +43,25 @@ public abstract class RadialGeometry extends Geometry {
      * @param radius the radius of the geometry
      */
     public RadialGeometry(double radius) {
-        this.radius = radius;
-        this.radiusSquared = radius * radius;
+        this._radius = radius;
+        this._radiusSquared = radius * radius;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         RadialGeometry that = (RadialGeometry) o;
-        return Double.compare(radius, that.radius) == 0 && Double.compare(radiusSquared, that.radiusSquared) == 0;
+        return Double.compare(_radius, that._radius) == 0 && Double.compare(_radiusSquared, that._radiusSquared) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(radius, radiusSquared);
+        return Objects.hash(_radius, _radiusSquared);
     }
 
     @Override
     public String toString() {
-        return "RadialGeometry{" +
-                "radius=" + radius +
-                ", radiusSquared=" + radiusSquared +
-                '}';
+        return "RadialGeometry: radius=" + _radius +
+                ", radiusSquared=" + _radiusSquared;
     }
 }

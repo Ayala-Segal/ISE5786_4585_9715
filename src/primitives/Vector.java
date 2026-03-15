@@ -25,6 +25,22 @@ package primitives;
  */
 public class Vector extends Point {
 
+
+    /**
+     * Constant unit vector along the X axis (1,0,0).
+     */
+    public static final Vector AXIS_X = new Vector(1, 0, 0);
+
+    /**
+     * Constant unit vector along the Y axis (0,1,0).
+     */
+    public static final Vector AXIS_Y = new Vector(0, 1, 0);
+
+    /**
+     * Constant unit vector along the Z axis (0,0,1).
+     */
+    public static final Vector AXIS_Z = new Vector(0, 0, 1);
+
     /**
      * Constructs a vector with the specified coordinates.
      *
@@ -73,11 +89,6 @@ public class Vector extends Point {
         return new Vector(this._xyz.scale(scalar));
     }
 
-    //    public double dotProduct(Vector other) {
-//        Double3 newDot = this._xyz.product(other._xyz);
-//        return newDot._d1()+newDot._d2()+newDot._d3();
-//    }
-
     /**
      * Computes the dot product (scalar product) of this vector with another vector.
      *
@@ -122,14 +133,6 @@ public class Vector extends Point {
         return Math.sqrt(lengthSquared());
     }
 
-    //    public double distanceSquared(Vector other) {
-    //        return 0.0;
-    //    }
-    //
-    //    public double distance(Vector other) {
-    //        return 0.0;
-    //    }
-
     /**
      * Normalizes this vector to a unit vector (length of 1).
      *
@@ -137,5 +140,22 @@ public class Vector extends Point {
      */
     public Vector normalize() {
         return this.scale(1 / length());
+    }
+
+    @Override
+    public String toString() {
+        return "Vector" + _xyz;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Vector other)) return false;
+        return _xyz.equals(other._xyz);
+    }
+
+    @Override
+    public int hashCode() {
+        return _xyz.hashCode();
     }
 }

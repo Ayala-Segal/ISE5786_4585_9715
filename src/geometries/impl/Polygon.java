@@ -4,6 +4,7 @@ import java.util.List;
 
 import geometries.api.Geometry;
 import primitives.Point;
+import primitives.Vector;
 
 import static primitives.Util.isZero;
 

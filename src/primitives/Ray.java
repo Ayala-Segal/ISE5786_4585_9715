@@ -1,5 +1,7 @@
 package primitives;
 
+import java.util.Objects;
+
 /**
  * Represents a ray (half-line) in three-dimensional space.
  * <p>
@@ -15,12 +17,12 @@ public class Ray {
     /**
      * The starting point of the ray.
      */
-    private Point origin;
+    private final Point _origin;
 
     /**
      * The normalized direction vector of the ray.
      */
-    private Vector direction;
+    private final Vector _direction;
 
     /**
      * Constructs a ray with the specified origin and direction.
@@ -29,14 +31,34 @@ public class Ray {
      * @param origin    the starting point of the ray
      * @param direction the direction vector of the ray
      */
-    Ray(Point origin, Vector direction) {
-        this.origin = origin;
-        this.direction = direction.normalize();
+    public Ray(Point origin, Vector direction) {
+        this._origin = origin;
+        this._direction = direction.normalize();
     }
+
+    /**
+     * Returns the origin point of the ray.
+     *
+     * @return the starting point of the ray
+     */
+    public Point origin() {
+        return _origin;
+    }
+
+    /**
+     * Returns the direction vector of the ray.
+     * The vector is normalized.
+     *
+     * @return the direction vector of the ray
+     */
+    public Vector direction() {
+        return _direction;
+    }
+
 
     @Override
     public String toString() {
-        return origin + ", " + direction;
+        return "Ray: origin: " + _origin + ", direction" + _direction;
     }
 
     @Override
@@ -44,11 +66,11 @@ public class Ray {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Ray other = (Ray) obj;
-        return origin.equals(other.origin) && direction.equals(other.direction);
+        return _origin.equals(other._origin) && _direction.equals(other._direction);
     }
 
     @Override
     public int hashCode() {
-        return 31 * origin.hashCode() + direction.hashCode();
+        return Objects.hash(_origin, _direction);
     }
 }

@@ -17,11 +17,11 @@ public class Plane extends Geometry {
     /**
      * A point on the plane.
      */
-    private Point point;
+    private final Point _point;
     /**
      * The normal vector of the plane.
      */
-    private Vector normal;
+    private final Vector _normal;
 
     /**
      * Constructs a plane from three points.
@@ -35,7 +35,8 @@ public class Plane extends Geometry {
      * @param p3 third point on the plane
      */
     public Plane(Point p1, Point p2, Point p3) {
-        this.point = p1;//??
+        this._point = p1;
+        this._normal = null;
     }
 
     /**
@@ -45,33 +46,30 @@ public class Plane extends Geometry {
      * @param normal the normal vector of the plane
      */
     public Plane(Point point, Vector normal) {
-        this.point = point;
-        this.normal = normal;
+        this._point = point;
+        this._normal = normal.normalize();
     }
 
     @Override
     public Vector getNormal(Point point) {
-        return normal;
+        return _normal;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Plane plane = (Plane) o;
-        return Objects.equals(point, plane.point) && Objects.equals(normal, plane.normal);
+        return Objects.equals(_point, plane._point) && Objects.equals(_normal, plane._normal);
     }
-
 
     @Override
     public int hashCode() {
-        return Objects.hash(point, normal);
+        return Objects.hash(_point, _normal);
     }
 
     @Override
     public String toString() {
-        return "Plane{" +
-                "point=" + point +
-                ", normal=" + normal +
-                '}';
+        return "Plane: + point=" + _point +
+                ", normal=" + _normal;
     }
 }
