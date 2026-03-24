@@ -2,6 +2,9 @@ package geometries.api;
 
 import primitives.Point;
 import primitives.Vector;
+/**
+ * Interface or Base class for all geometries in the scene.
+ */
 
 public abstract class Geometry {
 
