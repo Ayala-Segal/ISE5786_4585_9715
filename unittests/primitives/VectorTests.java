@@ -5,7 +5,19 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for class {@link Vector}
+ * Unit tests for class {@link Vector}.
+ * The tests verify:
+ * <ul>
+ * <li>Constructor</li>
+ * <li>{@link Vector#add(Vector)}</li>
+ * <li>{@link Vector#scale(double)}</li>
+ * <li>{@link Vector#dotProduct(Vector)}</li>
+ * <li>{@link Vector#crossProduct(Vector)}</li>
+ * <li>{@link Vector#lengthSquared()}</li>
+ * <li>{@link Vector#length()}</li>
+ * <li>{@link Vector#normalize()}</li>
+ * </ul>
+ * Tests follow Equivalence Partitions (EP) and Boundary Values (BVA).
  */
 class VectorTests {
 
@@ -13,7 +25,17 @@ class VectorTests {
     private static final double DELTA = 1e-6;
 
     /** Error message */
-    private static final String ERROR = "ERROR: wrong result";
+    private static final String ERROR_ADD = "ERROR: add() result is incorrect";
+    private static final String ERROR_SUBTRACT = "ERROR: subtract() result is incorrect";
+    private static final String ERROR_SCALE = "ERROR: scale() result is incorrect";
+    private static final String ERROR_DOT = "ERROR: dotProduct() result is incorrect";
+    private static final String ERROR_CROSS = "ERROR: crossProduct() result is incorrect";
+    private static final String ERROR_LENGTH = "ERROR: length calculation is incorrect";
+    private static final String ERROR_NORMALIZE = "ERROR: normalize() result is incorrect";
+    private static final String ERROR_EXCEPTION = "ERROR: expected exception was not thrown";
+    private static final String ERROR_ZERO_VECTOR = "ERROR: zero vector should not be allowed";
+
+    VectorTests() { /* to satisfy JavaDoc generator */ }
 
     /**
      * Test constructor of {@link Vector}
@@ -24,14 +46,14 @@ class VectorTests {
         // ============ Equivalence Partitions Tests ==============
 
         // EP01: create valid vector
-        assertDoesNotThrow(() -> new Vector(1, 2, 3), ERROR);
+        assertDoesNotThrow(() -> new Vector(1, 2, 3), ERROR_EXCEPTION);
 
         // =============== Boundary Values Tests ==================
 
         // BV01: zero vector should throw exception
         assertThrows(IllegalArgumentException.class,
                 () -> new Vector(0, 0, 0),
-                ERROR);
+                ERROR_ZERO_VECTOR);
     }
 
     /**
@@ -45,20 +67,19 @@ class VectorTests {
         // EP01: regular addition
         Vector v1 = new Vector(1, 2, 3);
         Vector v2 = new Vector(2, 3, 4);
-        assertEquals(new Vector(3, 5, 7), v1.add(v2), ERROR);
+        assertDoesNotThrow(() -> v1.add(v2), ERROR_EXCEPTION);
+        assertEquals(new Vector(3, 5, 7), v1.add(v2), ERROR_ADD);
 
         // =============== Boundary Values Tests ==================
 
         // BV01: addition that results zero vector
         Vector v3 = new Vector(1, 2, 3);
         Vector v4 = new Vector(-1, -2, -3);
-        assertThrows(IllegalArgumentException.class,
-                () -> v3.add(v4),
-                ERROR);
+        assertThrows(IllegalArgumentException.class, () -> v3.add(v4), ERROR_ZERO_VECTOR);
     }
 
     /**
-     * Test {@link Vector#subtract(Vector)} method
+     * Test {Vector#subtract(Vector)} method
      */
     @Test
     void testSubtract() {
@@ -68,7 +89,7 @@ class VectorTests {
         // EP01: regular subtraction
         Vector v1 = new Vector(3, 5, 7);
         Vector v2 = new Vector(1, 2, 3);
-        assertEquals(new Vector(2, 3, 4), v1.subtract(v2), ERROR);
+        assertEquals(new Vector(2, 3, 4), v1.subtract(v2), ERROR_SUBTRACT);
 
         // =============== Boundary Values Tests ==================
 
@@ -77,7 +98,7 @@ class VectorTests {
         Vector v4 = new Vector(1, 2, 3);
         assertThrows(IllegalArgumentException.class,
                 () -> v3.subtract(v4),
-                ERROR);
+                ERROR_SUBTRACT);
     }
 
     /**
@@ -90,14 +111,15 @@ class VectorTests {
 
         // EP01: scaling by non-zero scalar
         Vector v = new Vector(1, 2, 3);
-        assertEquals(new Vector(2, 4, 6), v.scale(2), ERROR);
+        assertDoesNotThrow(() -> v.scale(2), ERROR_EXCEPTION);
+        assertEquals(new Vector(2, 4, 6), v.scale(2), ERROR_SCALE);
 
         // =============== Boundary Values Tests ==================
 
         // BV01: scaling by zero should throw exception
         assertThrows(IllegalArgumentException.class,
                 () -> v.scale(0),
-                ERROR);
+                ERROR_SCALE);
     }
 
     /**
@@ -110,15 +132,19 @@ class VectorTests {
 
         // EP01: general dot product
         Vector v1 = new Vector(1, 2, 3);
-        Vector v2 = new Vector(0, 3, -2);
-        assertEquals(0, v1.dotProduct(v2), DELTA, ERROR);
+        Vector v2 = new Vector(2, 3, 4);
+        assertDoesNotThrow(() -> v1.dotProduct(v2), ERROR_DOT);
+        assertEquals(20, v1.dotProduct(v2), DELTA, ERROR_DOT);
+
+        // EP02: dotProduct symmetry (v1·v2 = v2·v1)
+        assertEquals(v1.dotProduct(v2), v2.dotProduct(v1), DELTA, ERROR_DOT);
 
         // =============== Boundary Values Tests ==================
 
         // BV01: orthogonal vectors
         Vector v3 = new Vector(1, 0, 0);
         Vector v4 = new Vector(0, 1, 0);
-        assertEquals(0, v3.dotProduct(v4), DELTA, ERROR);
+        assertEquals(0, v3.dotProduct(v4), DELTA, ERROR_DOT);
     }
 
     /**
@@ -132,14 +158,15 @@ class VectorTests {
         // EP01: regular cross product
         Vector v1 = new Vector(1, 2, 3);
         Vector v2 = new Vector(0, 3, -2);
+        assertDoesNotThrow(() -> v1.crossProduct(v2), ERROR_EXCEPTION);
         Vector vr = v1.crossProduct(v2);
 
         // check length
-        assertEquals(v1.length() * v2.length(), vr.length(), DELTA, ERROR);
+        assertEquals(v1.length() * v2.length(), vr.length(), DELTA, ERROR_CROSS);
 
         // check orthogonality
-        assertEquals(0, vr.dotProduct(v1), DELTA, ERROR);
-        assertEquals(0, vr.dotProduct(v2), DELTA, ERROR);
+        assertEquals(0, vr.dotProduct(v1), DELTA, ERROR_CROSS);
+        assertEquals(0, vr.dotProduct(v2), DELTA, ERROR_CROSS);
 
         // =============== Boundary Values Tests ==================
 
@@ -148,7 +175,7 @@ class VectorTests {
         Vector v4 = new Vector(2, 4, 6);
         assertThrows(IllegalArgumentException.class,
                 () -> v3.crossProduct(v4),
-                ERROR);
+                ERROR_ZERO_VECTOR);
     }
 
     /**
@@ -161,7 +188,7 @@ class VectorTests {
 
         // EP01: normal vector
         Vector v = new Vector(1, 2, 2);
-        assertEquals(9, v.lengthSquared(), DELTA, ERROR);
+        assertEquals(9, v.lengthSquared(), DELTA, ERROR_LENGTH);
     }
 
     /**
@@ -174,7 +201,7 @@ class VectorTests {
 
         // EP01: normal vector
         Vector v = new Vector(0, 3, 4);
-        assertEquals(5, v.length(), DELTA, ERROR);
+        assertEquals(5, v.length(), DELTA, ERROR_LENGTH);
     }
 
     /**
@@ -187,14 +214,15 @@ class VectorTests {
 
         // EP01: normalize vector
         Vector v = new Vector(1, 2, 3);
+        assertDoesNotThrow(() -> v.normalize(), ERROR_EXCEPTION);
         Vector n = v.normalize();
 
         // check length = 1
-        assertEquals(1, n.length(), DELTA, ERROR);
+        assertEquals(1, n.length(), DELTA, ERROR_NORMALIZE);
 
         // check parallel
         assertThrows(IllegalArgumentException.class,
                 () -> v.crossProduct(n),
-                ERROR);
+                ERROR_NORMALIZE);
     }
 }

@@ -88,7 +88,7 @@ public class Point {
      */
     public Point add(Vector vector) {
 
-        return new Point(vector._xyz.add(this._xyz));
+        return new Point(this._xyz.add(vector._xyz));
     }
 
     /**
