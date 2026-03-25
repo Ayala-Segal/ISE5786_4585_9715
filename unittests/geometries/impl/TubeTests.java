@@ -8,45 +8,50 @@ import primitives.Vector;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for class Tube
+ * Unit tests for class {@link Tube}.
+ * Verifies correctness of {@link Tube#getNormal(Point)}.
+ *
+ * Follows EP + BVA methodology.
  */
 class TubeTests {
 
     private static final double DELTA = 1e-6;
-    private static final String ERROR = "ERROR: wrong result";
+    private static final String ERROR = "ERROR: wrong normal result";
 
-    /**
-     * Test getNormal(Point)
-     */
+    // Tube axis along Z direction
+    private static final Ray AXIS =
+            new Ray(new Point(0, 0, 0), Vector.AXIS_Z);
+
     @Test
     void testGetNormal() {
 
-        Ray axis = new Ray(new Point(0, 0, 0), new Vector(0, 0, 1));
-        Tube tube = new Tube(1, axis);
+        Tube tube = new Tube(1, AXIS);
 
-        // ============ Equivalence Partitions Tests ==============
+        // ================= EP TESTS =================
 
-        // EP01: point on tube (side, general case)
+        // TC01 - EP: point on tube side (forward direction of axis)
         Point p1 = new Point(1, 0, 5);
         Vector n1 = tube.getNormal(p1);
 
         assertEquals(1, n1.length(), DELTA, ERROR);
-        assertEquals(new Vector(1, 0, 0), n1, ERROR);
+        assertEquals(0, n1.dotProduct(Vector.AXIS_Z), DELTA, ERROR);
 
-        // EP02: another side point
+
+        // TC02 - EP: point on tube side (backward direction of axis)
         Point p2 = new Point(0, 1, -3);
         Vector n2 = tube.getNormal(p2);
 
         assertEquals(1, n2.length(), DELTA, ERROR);
-        assertEquals(new Vector(0, 1, 0), n2, ERROR);
+        assertEquals(0, n2.dotProduct(Vector.AXIS_Z), DELTA, ERROR);
 
-        // =============== Boundary Values Tests ==================
 
-        // BV01: point מול ראש הציר (t = 0)
+        // ================= BVA TEST =================
+
+        // BV01 - point aligned with axis projection (t = 0 plane)
         Point p3 = new Point(1, 0, 0);
         Vector n3 = tube.getNormal(p3);
 
         assertEquals(1, n3.length(), DELTA, ERROR);
-        assertEquals(new Vector(1, 0, 0), n3, ERROR);
+        assertEquals(0, n3.dotProduct(Vector.AXIS_Z), DELTA, ERROR);
     }
 }

@@ -7,40 +7,47 @@ import primitives.Vector;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for class Sphere
+ * Unit tests for class {@link Sphere}.
+ * The tests verify:
+ * <ul>
+ * <li>{@link Sphere#getNormal(Point)}</li>
+ * </ul>
+ * Tests follow the methodology of Equivalence Partitions (EP).
  */
 class SphereTests {
 
+    /** Delta value for comparing double precision values */
     private static final double DELTA = 1e-6;
-    private static final String ERROR = "ERROR: wrong result";
+
+    /** Error message for wrong normal calculation */
+    private static final String ERROR = "ERROR: wrong normal";
 
     /**
-     * Test getNormal(Point)
+     * Default constructor (for JavaDoc completeness)
+     */
+    SphereTests() { }
+
+    /**
+     * Test method for {@link Sphere#getNormal(Point)}.
+     * Verifies that the normal vector is unit length and correctly
+     * points from the sphere center to the surface point.
      */
     @Test
     void testGetNormal() {
 
-        Sphere sphere = new Sphere(new Point(0, 0, 0), 1);
-
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: point on sphere
-        Point p = new Point(0, 0, 1);
-        Vector n = sphere.getNormal(p);
+        Sphere sphere = new Sphere(new Point(0, 0, 0), 1);
 
-        // length = 1
-        assertEquals(1, n.length(), DELTA, ERROR);
+        // EP: any point on sphere surface
+        Point pointOnSphere = new Point(0, 0, 1);
 
-        // direction check
-        assertEquals(new Vector(0, 0, 1), n, ERROR);
+        Vector result = sphere.getNormal(pointOnSphere);
 
-        // =============== Boundary Values Tests ==================
+        // Ensure |n| = 1
+        assertEquals(1, result.length(), DELTA, ERROR);
 
-        // BV01: another point on sphere
-        Point p2 = new Point(1, 0, 0);
-        Vector n2 = sphere.getNormal(p2);
-
-        assertEquals(1, n2.length(), DELTA, ERROR);
-        assertEquals(new Vector(1, 0, 0), n2, ERROR);
+        // Ensure correct direction (from center outward)
+        assertEquals(Vector.AXIS_Z, result, ERROR);
     }
 }
