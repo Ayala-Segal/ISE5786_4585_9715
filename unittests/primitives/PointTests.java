@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * <li>{@link Point#distanceSquared(Point)}</li>
  * <li>{@link Point#distance(Point)}</li>
  * </ul>
- * Tests follow Equivalence Partitions (EP) and Boundary Values (BVA).
+ * Tests follow Equivalence Partitions (TC) and Boundary Values (BVA).
  */
 class PointTests {
 
@@ -36,20 +36,20 @@ class PointTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: regular subtraction
+        // TC01: regular subtraction
         Point p1 = new Point(2, 3, 4);
         Point p2 = new Point(1, 1, 1);
         assertDoesNotThrow(() -> p1.subtract(p2), ERROR_SUBTRACT);
         assertEquals(new Vector(1, 2, 3), p1.subtract(p2), ERROR_SUBTRACT);
 
-        // EP02: negative result
+        // TC02: negative result
         Point p11 = new Point(1,1,1);
         Point p21 = new Point(2,2,2);
         assertEquals(new Vector(-1,-1,-1), p11.subtract(p21), ERROR_SUBTRACT);
 
         // =============== Boundary Values Tests ==================
 
-        // BV01: subtract same point → zero vector → exception
+        // TC11: subtract same point → zero vector → exception
         Point p3 = new Point(1, 2, 3);
         assertThrows(IllegalArgumentException.class, () -> p3.subtract(p3), ERROR_SUBTRACT);
     }
@@ -62,7 +62,7 @@ class PointTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: regular addition
+        // TC01: regular addition
         Point p = new Point(1, 2, 3);
         Vector v = new Vector(-1, -2, -3);
         assertEquals(Point.ZERO, p.add(v), ERROR_ADD);
@@ -79,14 +79,14 @@ class PointTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: general case
+        // TC01: general case
         Point p1 = new Point(1, 2, 3);
         Point p2 = new Point(2, 3, 4);
         assertEquals(3, p1.distanceSquared(p2), DELTA, ERROR_DISTANCE_SQUARED);
 
         // =============== Boundary Values Tests ==================
 
-        // BV01: same point → distance = 0
+        // TC11: same point → distance = 0
         assertEquals(0, p1.distanceSquared(p1), DELTA, ERROR_DISTANCE_SQUARED);
         //Symmetry test
         assertEquals(p1.distanceSquared(p2), p2.distanceSquared(p1), DELTA, ERROR_DISTANCE_SQUARED);
@@ -100,16 +100,16 @@ class PointTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: general case
+        // TC01: general case
         Point p1 = new Point(0, 0, 0);
         Point p2 = new Point(0, 3, 4);
         assertEquals(5, p1.distance(p2), DELTA, ERROR_DISTANCE);
         //Symmetry test
-        assertEquals(5, p1.distance(p2), DELTA, ERROR_DISTANCE);
+        assertEquals( p1.distance(p2), p2.distance(p1), DELTA, ERROR_DISTANCE);
 
         // =============== Boundary Values Tests ==================
 
-        // BV01: same point → distance = 0
+        // TC11: same point → distance = 0
         assertEquals(0, p1.distance(p1), DELTA, ERROR_DISTANCE);
     }
 }

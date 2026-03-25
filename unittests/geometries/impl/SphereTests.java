@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * <ul>
  * <li>{@link Sphere#getNormal(Point)}</li>
  * </ul>
- * Tests follow the methodology of Equivalence Partitions (EP).
+ * Equivalence Partitions (EP).
  */
 class SphereTests {
 
@@ -39,7 +39,7 @@ class SphereTests {
 
         Sphere sphere = new Sphere(new Point(0, 0, 0), 1);
 
-        // EP: any point on sphere surface
+        // TC01: any point on sphere surface
         Point pointOnSphere = new Point(0, 0, 1);
 
         Vector result = sphere.getNormal(pointOnSphere);

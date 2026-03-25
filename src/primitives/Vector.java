@@ -154,8 +154,4 @@ public class Vector extends Point {
         return _xyz.equals(other._xyz);
     }
 
-    @Override
-    public int hashCode() {
-        return _xyz.hashCode();
-    }
 }

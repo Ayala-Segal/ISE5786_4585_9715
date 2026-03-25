@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * <li>{@link Vector#length()}</li>
  * <li>{@link Vector#normalize()}</li>
  * </ul>
- * Tests follow Equivalence Partitions (EP) and Boundary Values (BVA).
+ * Tests follow Equivalence Partitions (TC) and Boundary Values (BVA).
  */
 class VectorTests {
 
@@ -45,12 +45,12 @@ class VectorTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: create valid vector
+        // TC01: create valid vector
         assertDoesNotThrow(() -> new Vector(1, 2, 3), ERROR_EXCEPTION);
 
         // =============== Boundary Values Tests ==================
 
-        // BV01: zero vector should throw exception
+        // TC11: zero vector should throw exception
         assertThrows(IllegalArgumentException.class,
                 () -> new Vector(0, 0, 0),
                 ERROR_ZERO_VECTOR);
@@ -64,7 +64,7 @@ class VectorTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: regular addition
+        // TC01: regular addition
         Vector v1 = new Vector(1, 2, 3);
         Vector v2 = new Vector(2, 3, 4);
         assertDoesNotThrow(() -> v1.add(v2), ERROR_EXCEPTION);
@@ -72,7 +72,7 @@ class VectorTests {
 
         // =============== Boundary Values Tests ==================
 
-        // BV01: addition that results zero vector
+        //TC11: addition that results zero vector
         Vector v3 = new Vector(1, 2, 3);
         Vector v4 = new Vector(-1, -2, -3);
         assertThrows(IllegalArgumentException.class, () -> v3.add(v4), ERROR_ZERO_VECTOR);
@@ -86,19 +86,16 @@ class VectorTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: regular subtraction
+        // TC01: regular subtraction
         Vector v1 = new Vector(3, 5, 7);
         Vector v2 = new Vector(1, 2, 3);
         assertEquals(new Vector(2, 3, 4), v1.subtract(v2), ERROR_SUBTRACT);
 
         // =============== Boundary Values Tests ==================
 
-        // BV01: subtraction that results zero vector
+        // TC11: subtraction that results zero vector
         Vector v3 = new Vector(1, 2, 3);
-        Vector v4 = new Vector(1, 2, 3);
-        assertThrows(IllegalArgumentException.class,
-                () -> v3.subtract(v4),
-                ERROR_SUBTRACT);
+        assertThrows(IllegalArgumentException.class, () -> v3.subtract(v3), ERROR_SUBTRACT);
     }
 
     /**
@@ -109,14 +106,14 @@ class VectorTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: scaling by non-zero scalar
+        // TC01: scaling by non-zero scalar
         Vector v = new Vector(1, 2, 3);
         assertDoesNotThrow(() -> v.scale(2), ERROR_EXCEPTION);
         assertEquals(new Vector(2, 4, 6), v.scale(2), ERROR_SCALE);
 
         // =============== Boundary Values Tests ==================
 
-        // BV01: scaling by zero should throw exception
+        // TC11: scaling by zero should throw exception
         assertThrows(IllegalArgumentException.class,
                 () -> v.scale(0),
                 ERROR_SCALE);
@@ -130,18 +127,18 @@ class VectorTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: general dot product
+        // TC01: general dot product
         Vector v1 = new Vector(1, 2, 3);
         Vector v2 = new Vector(2, 3, 4);
         assertDoesNotThrow(() -> v1.dotProduct(v2), ERROR_DOT);
         assertEquals(20, v1.dotProduct(v2), DELTA, ERROR_DOT);
 
-        // EP02: dotProduct symmetry (v1·v2 = v2·v1)
+        // TC02: dotProduct symmetry (v1·v2 = v2·v1)
         assertEquals(v1.dotProduct(v2), v2.dotProduct(v1), DELTA, ERROR_DOT);
 
         // =============== Boundary Values Tests ==================
 
-        // BV01: orthogonal vectors
+        // TC11: orthogonal vectors
         Vector v3 = new Vector(1, 0, 0);
         Vector v4 = new Vector(0, 1, 0);
         assertEquals(0, v3.dotProduct(v4), DELTA, ERROR_DOT);
@@ -155,7 +152,7 @@ class VectorTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: regular cross product
+        // TC01: regular cross product
         Vector v1 = new Vector(1, 2, 3);
         Vector v2 = new Vector(0, 3, -2);
         assertDoesNotThrow(() -> v1.crossProduct(v2), ERROR_EXCEPTION);
@@ -170,7 +167,7 @@ class VectorTests {
 
         // =============== Boundary Values Tests ==================
 
-        // BV01: parallel vectors → zero vector → exception
+        //TC11: parallel vectors → zero vector → exception
         Vector v3 = new Vector(1, 2, 3);
         Vector v4 = new Vector(2, 4, 6);
         assertThrows(IllegalArgumentException.class,
@@ -186,7 +183,7 @@ class VectorTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: normal vector
+        // TC01: normal vector
         Vector v = new Vector(1, 2, 2);
         assertEquals(9, v.lengthSquared(), DELTA, ERROR_LENGTH);
     }
@@ -199,7 +196,7 @@ class VectorTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: normal vector
+        // TC01: normal vector
         Vector v = new Vector(0, 3, 4);
         assertEquals(5, v.length(), DELTA, ERROR_LENGTH);
     }
@@ -212,7 +209,7 @@ class VectorTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: normalize vector
+        // TC01: normalize vector
         Vector v = new Vector(1, 2, 3);
         assertDoesNotThrow(() -> v.normalize(), ERROR_EXCEPTION);
         Vector n = v.normalize();

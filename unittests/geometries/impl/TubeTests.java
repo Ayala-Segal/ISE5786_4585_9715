@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for class {@link Tube}.
  * Verifies correctness of {@link Tube#getNormal(Point)}.
- *
- * Follows EP + BVA methodology.
+
+ * Equivalence Partitions (EP) and Boundary Values (BVA).
  */
 class TubeTests {
 
@@ -27,9 +27,9 @@ class TubeTests {
 
         Tube tube = new Tube(1, AXIS);
 
-        // ================= EP TESTS =================
+        // ================= TC TESTS =================
 
-        // TC01 - EP: point on tube side (forward direction of axis)
+        // TC01 - TC: point on tube side (forward direction of axis)
         Point p1 = new Point(1, 0, 5);
         Vector n1 = tube.getNormal(p1);
 
@@ -37,7 +37,7 @@ class TubeTests {
         assertEquals(0, n1.dotProduct(Vector.AXIS_Z), DELTA, ERROR);
 
 
-        // TC02 - EP: point on tube side (backward direction of axis)
+        // TC02 - TC: point on tube side (backward direction of axis)
         Point p2 = new Point(0, 1, -3);
         Vector n2 = tube.getNormal(p2);
 
@@ -47,7 +47,7 @@ class TubeTests {
 
         // ================= BVA TEST =================
 
-        // BV01 - point aligned with axis projection (t = 0 plane)
+        // TC11 - point aligned with axis projection (t = 0 plane)
         Point p3 = new Point(1, 0, 0);
         Vector n3 = tube.getNormal(p3);
 

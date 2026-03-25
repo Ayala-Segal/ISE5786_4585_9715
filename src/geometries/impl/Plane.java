@@ -36,7 +36,11 @@ public class Plane extends Geometry {
      */
     public Plane(Point p1, Point p2, Point p3) {
         this._point = p1;
-        this._normal = null;
+
+        // Compute and normalize the plane normal
+        this._normal = p2.subtract(p1)
+                .crossProduct(p3.subtract(p1))
+                .normalize();
     }
 
     /**

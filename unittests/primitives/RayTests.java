@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * <ul>
  * <li>Constructor and getters</li>
  * </ul>
- * Tests follow Equivalence Partitions (EP) and Boundary Values (BVA).
+ * Tests follow Equivalence Partitions (TC) and Boundary Values (BVA).
  */
 class RayTests {
 
@@ -33,7 +33,7 @@ class RayTests {
 
         // ============ Equivalence Partitions Tests ==============
 
-        // EP01: regular ray creation
+        // TC01: regular ray creation
         Point origin = new Point(1, 2, 3);
         Vector dir = new Vector(0, 3, 4);
 
@@ -47,21 +47,21 @@ class RayTests {
         // check normalized direction (length = 1)
         assertEquals(1, ray.direction().length(), DELTA, ERROR_DIRECTION);
 
-        //EP02 direction is parallel to original vector → crossProduct should throw (zero vector)
+        //TC02 direction is parallel to original vector → crossProduct should throw (zero vector)
         assertThrows(IllegalArgumentException.class,
                 () -> ray.direction().crossProduct(dir),
                 ERROR_PARALLEL);
 
         // =============== Boundary Values Tests ==================
 
-        // BV01: direction already normalized
+        //TC11: direction already normalized
         Vector unit = new Vector(0, 0, 1);
         assertDoesNotThrow(() -> new Ray(origin, unit), ERROR_EXCEPTION);
         Ray ray2 = new Ray(origin, unit);
 
         assertEquals(1, ray2.direction().length(), DELTA, ERROR_DIRECTION);
 
-        // BV02: zero vector direction → should throw exception
+        // TC12: zero vector direction → should throw exception
         assertThrows(IllegalArgumentException.class,
                 () -> new Ray(origin, new Vector(0, 0, 0)),
                 ERROR_ZERO_VECTOR);

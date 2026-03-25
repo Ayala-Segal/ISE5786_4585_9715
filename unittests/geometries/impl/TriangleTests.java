@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * The tests verify correctness of {@link Triangle#getNormal(Point)}.
  *
  * Tests follow the methodology of:
- * Equivalence Partitions (EP) and Boundary Values (BVA).
+ * Equivalence Partitions (EP).
  */
 class TriangleTests {
 
