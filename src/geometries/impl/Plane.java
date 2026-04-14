@@ -82,6 +82,6 @@ public class Plane extends Geometry {
 
     @Override
     public List<Point> findIntersections(Ray ray) {
-        return List.of();
+        return null;
     }
 }
