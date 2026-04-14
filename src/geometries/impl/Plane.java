@@ -1,9 +1,11 @@
 package geometries.impl;
 
+import java.util.List;
 import java.util.Objects;
 
 import geometries.api.Geometry;
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 
 /**
@@ -75,5 +77,11 @@ public class Plane extends Geometry {
     public String toString() {
         return "Plane: + point=" + _point +
                 ", normal=" + _normal;
+    }
+
+
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return List.of();
     }
 }

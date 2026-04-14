@@ -1,8 +1,11 @@
 package geometries.impl;
 
+import java.util.List;
 import java.util.Objects;
 
 import geometries.api.Geometry;
+import primitives.Point;
+import primitives.Ray;
 
 /**
  * Base class for geometries that have a radius.
@@ -64,4 +67,5 @@ public abstract class RadialGeometry extends Geometry {
         return "RadialGeometry: radius=" + _radius +
                 ", radiusSquared=" + _radiusSquared;
     }
+
 }

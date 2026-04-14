@@ -1,6 +1,9 @@
 package geometries.impl;
 
 import primitives.Point;
+import primitives.Ray;
+
+import java.util.List;
 
 /**
  * Represents a triangle in a 3D Cartesian coordinate system.
@@ -35,5 +38,10 @@ public class Triangle extends Polygon {
     @Override
     public String toString() {
         return "Triangle: " + super.toString();
+    }
+
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return List.of();
     }
 }

@@ -4,6 +4,7 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -59,5 +60,10 @@ public class Cylinder extends Tube {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), _height);
+    }
+
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return null;
     }
 }
