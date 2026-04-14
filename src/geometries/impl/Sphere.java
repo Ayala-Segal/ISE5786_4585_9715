@@ -7,6 +7,9 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
+
 /**
  * Represents a sphere in a 3D Cartesian coordinate system.
  * <p>
@@ -55,8 +58,60 @@ public class Sphere extends RadialGeometry {
         return super.toString() + "Sphere: center=" + _center;
     }
 
+
     @Override
     public List<Point> findIntersections(Ray ray) {
-        return null;
+
+        // Ray origin and direction
+        Point p0 = ray.origin();
+        Vector v = ray.direction();
+
+        // Vector from sphere center to ray origin
+        Vector u = p0.subtract(_center);
+
+        // Quadratic equation coefficients
+        double a = v.dotProduct(v);
+        double b = 2 * v.dotProduct(u);
+        double c = u.dotProduct(u) - _radiusSquared;
+
+        // Compute discriminant
+        double discriminant = alignZero(b * b - 4 * a * c);
+
+        // No intersections if discriminant is negative
+        if (discriminant < 0) return null;
+
+        // Single intersection (tangent case)
+        if (isZero(discriminant)) {
+            double t = alignZero(-b / (2 * a));
+            return t > 0 ? List.of(p0.add(v.scale(t))) : null;
+        }
+
+        // Two intersection points
+        double sqrt = Math.sqrt(discriminant);
+
+        double t1 = alignZero((-b - sqrt) / (2 * a));
+        double t2 = alignZero((-b + sqrt) / (2 * a));
+
+        List<Point> result = null;
+
+        // Both intersections are in front of the ray
+        if (t1 > 0 && t2 > 0) {
+            result = List.of(
+                    p0.add(v.scale(Math.min(t1, t2))),
+                    p0.add(v.scale(Math.max(t1, t2)))
+            );
+        }
+
+        // Only first intersection is valid
+        else if (t1 > 0) {
+            result = List.of(p0.add(v.scale(t1)));
+        }
+
+        // Only second intersection is valid
+        else if (t2 > 0) {
+            result = List.of(p0.add(v.scale(t2)));
+        }
+
+        return result;
     }
 }

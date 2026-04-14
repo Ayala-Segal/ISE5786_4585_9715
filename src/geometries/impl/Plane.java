@@ -3,10 +3,14 @@ package geometries.impl;
 import java.util.List;
 import java.util.Objects;
 
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
+
 import geometries.api.Geometry;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
+
 
 /**
  * Represents a plane in a 3D Cartesian coordinate system.
@@ -80,8 +84,32 @@ public class Plane extends Geometry {
     }
 
 
+
     @Override
     public List<Point> findIntersections(Ray ray) {
-        return null;
+
+        Point p0 = ray.origin();
+        Vector v = ray.direction();
+
+
+        double nv = _normal.dotProduct(v);
+
+        // ray is parallel to the plane
+        if (isZero(nv)) return null;
+
+        Vector qMinusP0;
+
+        try {
+            qMinusP0 = _point.subtract(p0);
+        } catch (IllegalArgumentException e) {
+            // Ray starts at the plane point
+            return null;
+        }
+
+        double t = alignZero(_normal.dotProduct(qMinusP0) / nv);
+
+        // intersection only if t > 0
+        // Only intersections in front of the ray
+        return t <= 0 ? null : List.of(p0.add(v.scale(t)));
     }
 }
