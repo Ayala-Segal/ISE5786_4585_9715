@@ -110,6 +110,5 @@ public class Plane extends Geometry {
 
         // intersection only if t > 0
         // Only intersections in front of the ray
-        return t <= 0 ? null : List.of(p0.add(v.scale(t)));
-    }
+        return t <= 0 ? null : List.of(ray.getPoint(t));    }
 }

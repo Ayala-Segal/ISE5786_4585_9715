@@ -21,6 +21,23 @@ class PlaneTests {
     private static final double DELTA = 1e-6;
     private static final String ERROR_NORMAL = "ERROR: normal is incorrect";
     private static final String ERROR_EXCEPTION = "ERROR: expected exception was not thrown";
+    /** Point (0,0,0) used in tests */
+    private static final Point P000 = new Point(0, 0, 0);
+    /** Point (0,0,1) used in tests */
+    private static final Point P001 = new Point(0, 0, 1);
+    /** Point (1,0,0) used in tests */
+    private static final Point P002 = new Point(0, 0, 2);
+    /** Vector (0,0,1) used in tests */
+    private static final Vector V001 = new Vector(0, 0, 1);
+    /** Vector (1,1,1) used in tests */
+    private static final Vector V111 = new Vector(1, 1, 1);
+    /** Vector (1,0,0) used in tests */
+    private static final Vector V100 = new Vector(1, 0, 0);
+    /** Plane z = 1 */
+    private static final Plane PLANE = new Plane(P001, V001);
+    /** Error message */
+    private static final String ERROR_PLANE_INTERSECTION = "Wrong plane intersection result";
+
 
     PlaneTests() { /* to satisfy JavaDoc generator */ }
 
@@ -125,30 +142,6 @@ class PlaneTests {
 
         assertEquals(1, n2.length(), DELTA, ERROR_NORMAL);
     }
-
-    /** Point (0,0,0) used in tests */
-    private static final Point P000 = new Point(0, 0, 0);
-
-    /** Point (0,0,1) used in tests */
-    private static final Point P001 = new Point(0, 0, 1);
-
-    /** Point (1,0,0) used in tests */
-    private static final Point P002 = new Point(0, 0, 2);
-
-    /** Vector (0,0,1) used in tests */
-    private static final Vector V001 = new Vector(0, 0, 1);
-
-    /** Vector (1,1,1) used in tests */
-    private static final Vector V111 = new Vector(1, 1, 1);
-
-    /** Vector (1,0,0) used in tests */
-    private static final Vector V100 = new Vector(1, 0, 0);
-
-    /** Plane z = 1 */
-    private static final Plane PLANE = new Plane(P001, V001);
-
-    /** Error message */
-    private static final String ERROR_PLANE_INTERSECTION = "Wrong plane intersection result";
 
     /**
      * Test method for {@link geometries.impl.Plane#findIntersections(primitives.Ray)}.

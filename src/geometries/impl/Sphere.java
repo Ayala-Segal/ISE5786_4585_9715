@@ -1,11 +1,11 @@
 package geometries.impl;
 
-import java.util.List;
-import java.util.Objects;
-
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
+
+import java.util.List;
+import java.util.Objects;
 
 import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
@@ -39,25 +39,8 @@ public class Sphere extends RadialGeometry {
 
     @Override
     public final Vector getNormal(Point point) {
-        return null;
+        return point.subtract(_center).normalize();
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Sphere sphere = (Sphere) o;
-        return Objects.equals(_center, sphere._center);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), _center);
-    }
-
-    public String toString() {
-        return super.toString() + "Sphere: center=" + _center;
-    }
-
 
     @Override
     public List<Point> findIntersections(Ray ray) {
@@ -65,6 +48,11 @@ public class Sphere extends RadialGeometry {
         // Ray origin and direction
         Point p0 = ray.origin();
         Vector v = ray.direction();
+
+        // Ray starts at the sphere center
+        if (p0.equals(_center)) {
+            return List.of(ray.getPoint(_radius));
+        }
 
         // Vector from sphere center to ray origin
         Vector u = p0.subtract(_center);
@@ -83,7 +71,7 @@ public class Sphere extends RadialGeometry {
         // Single intersection (tangent case)
         if (isZero(discriminant)) {
             double t = alignZero(-b / (2 * a));
-            return t > 0 ? List.of(p0.add(v.scale(t))) : null;
+            return t > 0 ? List.of(ray.getPoint(t)) : null;
         }
 
         // Two intersection points
@@ -97,21 +85,37 @@ public class Sphere extends RadialGeometry {
         // Both intersections are in front of the ray
         if (t1 > 0 && t2 > 0) {
             result = List.of(
-                    p0.add(v.scale(Math.min(t1, t2))),
-                    p0.add(v.scale(Math.max(t1, t2)))
+                    ray.getPoint(Math.min(t1, t2)),
+                    ray.getPoint(Math.max(t1, t2))
             );
         }
 
         // Only first intersection is valid
         else if (t1 > 0) {
-            result = List.of(p0.add(v.scale(t1)));
+            result = List.of(ray.getPoint(t1));
         }
 
         // Only second intersection is valid
         else if (t2 > 0) {
-            result = List.of(p0.add(v.scale(t2)));
+            result = List.of(ray.getPoint(t2));
         }
 
         return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Sphere sphere = (Sphere) o;
+        return Objects.equals(_center, sphere._center);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), _center);
+    }
+
+    public String toString() {
+        return super.toString() + "Sphere: center=" + _center;
     }
 }

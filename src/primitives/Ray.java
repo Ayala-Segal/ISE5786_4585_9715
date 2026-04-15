@@ -55,6 +55,21 @@ public class Ray {
         return _direction;
     }
 
+    /**
+     * Returns a point on the ray at distance t from the origin.
+     * The value t can be positive, negative or zero.
+     *
+     * @param t scalar distance from the ray origin
+     * @return point on the ray
+     */
+    public Point getPoint(double t) {
+        try {
+            return _origin.add(_direction.scale(t));
+        } catch (IllegalArgumentException e) {
+            // במקרה שנוצר וקטור אפס
+            return _origin;
+        }
+    }
 
     @Override
     public String toString() {

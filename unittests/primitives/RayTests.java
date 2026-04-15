@@ -66,4 +66,29 @@ class RayTests {
                 () -> new Ray(origin, new Vector(0, 0, 0)),
                 ERROR_ZERO_VECTOR);
     }
+
+    @Test
+    void testGetPoint() {
+
+        Ray ray = new Ray(new Point(1, 2, 3), new Vector(1, 0, 0));
+
+        // ============ Equivalence Partitions Tests ==============
+
+        // EP01: t > 0
+        assertEquals(new Point(3, 2, 3),
+                ray.getPoint(2),
+                "ERROR: getPoint() wrong result for positive t");
+
+        // EP02: t < 0
+        assertEquals(new Point(0, 2, 3),
+                ray.getPoint(-1),
+                "ERROR: getPoint() wrong result for negative t");
+
+        // =============== Boundary Values Tests ==================
+
+        // BV01: t = 0
+        assertEquals(new Point(1, 2, 3),
+                ray.getPoint(0),
+                "ERROR: getPoint() should return origin when t = 0");
+    }
 }
