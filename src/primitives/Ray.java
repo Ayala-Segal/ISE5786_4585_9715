@@ -66,7 +66,6 @@ public class Ray {
         try {
             return _origin.add(_direction.scale(t));
         } catch (IllegalArgumentException e) {
-            // במקרה שנוצר וקטור אפס
             return _origin;
         }
     }
