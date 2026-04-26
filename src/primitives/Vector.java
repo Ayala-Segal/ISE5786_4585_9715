@@ -86,6 +86,7 @@ public class Vector extends Point {
      * @return a new {@code Vector} containing the scaled values
      */
     public Vector scale(double scalar) {
+
         return new Vector(this._xyz.scale(scalar));
     }
 
