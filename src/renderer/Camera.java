@@ -33,9 +33,28 @@ public class Camera implements Cloneable  {
      * @param yIndex the row index of the pixel
      * @return a Ray going from the camera through the specified pixel
      */
-    public Ray constructRay(int xIndex, int yIndex) { return null; }
+    public Ray constructRay(int xIndex, int yIndex)
+    {
+        // center of view plane
+        Point pc = _vpCenter;
 
+        // offsets from center of grid
+        double xOffset = (xIndex - (_nX - 1) / 2.0) * _pixelWidth;
+        double yOffset = -((yIndex - (_nY - 1) / 2.0) * _pixelHeight);
 
+        // pixel center
+        Point pij = pc;
+
+        if (xOffset != 0)
+            pij = pij.add(_vRight.scale(xOffset));
+
+        if (yOffset != 0)
+            pij = pij.add(_vUp.scale(yOffset));
+
+        Vector dir = pij.subtract(_p0).normalize();
+
+        return new Ray(_p0, dir);
+    }
     /**
      * Builder class for constructing and configuring a Camera instance.
      */
