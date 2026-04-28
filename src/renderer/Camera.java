@@ -55,6 +55,7 @@ public class Camera implements Cloneable  {
 
         return new Ray(_p0, dir);
     }
+
     /**
      * Builder class for constructing and configuring a Camera instance.
      */
