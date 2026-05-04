@@ -79,10 +79,10 @@ public class Ray {
      * The closest point is determined using squared distance for efficiency.
      * </p>
      *
-     * @param points list of intersection points (may be null)
+     * @param points list of intersection points (maybe null)
      * @return the closest point to the ray origin, or null if list is null
      */
-    Point findClosestPoint(List<Point> points) {
+   public Point findClosestPoint(List<Point> points) {
 
         if (points == null) {
             return null;
