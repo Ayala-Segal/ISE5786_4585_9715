@@ -1,5 +1,5 @@
 package primitives;
-
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,6 +29,7 @@ class RayTests {
      * Test constructor and getters
      */
     @Test
+
     void testConstructor() {
 
         // ============ Equivalence Partitions Tests ==============
@@ -90,5 +91,48 @@ class RayTests {
         assertEquals(new Point(1, 2, 3),
                 ray.getPoint(0),
                 "ERROR: getPoint() should return origin when t = 0");
+    }
+
+    @Test
+    void testFindClosestPoint() {
+
+        Ray ray = new Ray(new Point(0, 0, 0), new Vector(1, 0, 0));
+
+        // ================= Boundary Values Tests =================
+
+        // BV01: null list → should return null
+        assertNull(ray.findClosestPoint(null),
+                "ERROR: null list should return null");
+
+        // BV02: first point is closest
+        Point p1 = new Point(1, 0, 0);   // closest
+        Point p2 = new Point(5, 0, 0);
+        Point p3 = new Point(10, 0, 0);
+
+        List<Point> listFirstClosest = List.of(p1, p2, p3);
+
+        assertEquals(p1,
+                ray.findClosestPoint(listFirstClosest),
+                "ERROR: first point should be closest");
+
+        // BV03: last point is closest
+        List<Point> listLastClosest = List.of(p3, p2, p1);
+
+        assertEquals(p1,
+                ray.findClosestPoint(listLastClosest),
+                "ERROR: last point should be closest");
+
+        // ================= Equivalence Partitions Tests =================
+
+        // EP01: middle point is closest
+        Point closeMid = new Point(2, 0, 0);   // closest
+        Point far1 = new Point(10, 0, 0);
+        Point far2 = new Point(20, 0, 0);
+
+        List<Point> listMiddleClosest = List.of(far1, closeMid, far2);
+
+        assertEquals(closeMid,
+                ray.findClosestPoint(listMiddleClosest),
+                "ERROR: middle point should be closest");
     }
 }

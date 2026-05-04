@@ -1,5 +1,6 @@
 package primitives;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -68,6 +69,39 @@ public class Ray {
         } catch (IllegalArgumentException e) {
             return _origin;
         }
+    }
+
+    /**
+     * Finds the closest intersection point to the ray origin.
+     * <p>
+     * The method assumes the list contains intersection points.
+     * If the list is null, null is returned.
+     * The closest point is determined using squared distance for efficiency.
+     * </p>
+     *
+     * @param points list of intersection points (may be null)
+     * @return the closest point to the ray origin, or null if list is null
+     */
+    Point findClosestPoint(List<Point> points) {
+
+        if (points == null) {
+            return null;
+        }
+
+        Point closestPoint = null;
+        double minDistance = Double.POSITIVE_INFINITY;
+
+        for (Point p : points) {
+
+            double distance = _origin.distanceSquared(p);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPoint = p;
+            }
+        }
+
+        return closestPoint;
     }
 
     @Override
