@@ -37,9 +37,9 @@ class CameraIntersectionIntegration {
      * Base camera positioned at origin looking towards negative Z axis.
      */
     private static final Camera BASE_CAMERA = Camera.getBuilder()
-            .setLocation(Point.ZERO)
+            .setLocation(Point.ZERO)/*center*/
             .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
-            .setVpSize(SIZE, SIZE)
+            .setVpSize(SIZE, SIZE)/*view plane*/
             .setVpDistance(DIST)
             .setResolution(COLS, ROWS)
             .build();
@@ -120,7 +120,7 @@ class CameraIntersectionIntegration {
      * @param geo geometry to test
      * @return total number of intersection points
      */
-    private int countAllIntersections(Camera cam, Intersectable geo) {
+    private static int countAllIntersections(Camera cam, Intersectable geo) {
         int sum = 0;
 
         for (int row = 0; row < ROWS; row++) {
@@ -141,7 +141,7 @@ class CameraIntersectionIntegration {
      * @param y   pixel row index
      * @return number of intersection points for that pixel
      */
-    private int intersectionsPerPixel(Camera cam, Intersectable geo, int x, int y) {
+    private static int intersectionsPerPixel(Camera cam, Intersectable geo, int x, int y) {
         List<Point> points = geo.findIntersections(cam.constructRay(x, y));
         return (points == null) ? 0 : points.size();
     }
