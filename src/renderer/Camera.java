@@ -240,4 +240,5 @@ public class Camera implements Cloneable {
             _camera._pixelHeight = _height / _nY;
         }
     }
+
 }
