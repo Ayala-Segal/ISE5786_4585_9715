@@ -1,46 +1,34 @@
 package geometries.impl;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import geometries.api.Intersectable;
+import geometries.api.Intersectable.Intersection;
 import primitives.Point;
 import primitives.Ray;
 
- /* *
+/**
  * A composite class representing a collection of geometric objects.
- * <p>
- * This class implements the Composite design pattern and allows treating
- * multiple {@link Intersectable} objects as a single entity.
- * </p>
- * <p>
- * It stores a list of geometries and enables adding new geometries
- * and performing operations (such as intersection calculations)
- * on all of them.
- * </p>
  */
 public class Geometries extends Intersectable {
 
     /**
-     * The list of geometries in the composite.
+     * List of geometries.
      */
     private final List<Intersectable> geometries = new ArrayList<>();
 
     /**
-     * Constructs a Geometries object with the given geometries.
-     * <p>
-     * The geometries are added using the {@link #add(Intersectable...)} method.
-     * </p>
+     * Constructs a Geometries object.
      *
-     * @param geometries geometries to be added to the collection
+     * @param geometries geometries to add
      */
     public Geometries(Intersectable... geometries) {
         add(geometries);
     }
 
     /**
-     * Adds one or more geometries to the collection.
-     * <p>
-     * Uses existing Java methods to avoid redundant logic (DRY principle).
-     * </p>
+     * Adds geometries to the collection.
      *
      * @param geometries geometries to add
      */
@@ -50,13 +38,19 @@ public class Geometries extends Intersectable {
         }
     }
 
+    /**
+     * Calculates intersections for composite geometry.
+     *
+     * @param ray the ray
+     * @return list of intersections or null
+     */
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
 
-        List<Point> result = null;
+        List<Intersection> result = null;
 
         for (Intersectable g : geometries) {
-            List<Point> temp = g.findIntersections(ray);
+            List<Intersection> temp = g.calcIntersections(ray);
 
             if (temp != null && !temp.isEmpty()) {
                 if (result == null) {

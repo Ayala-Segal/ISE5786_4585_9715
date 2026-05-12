@@ -86,11 +86,10 @@ public class Plane extends Geometry {
 
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
 
         Point p0 = ray.origin();
         Vector v = ray.direction();
-
 
         double nv = _normal.dotProduct(v);
 
@@ -109,6 +108,10 @@ public class Plane extends Geometry {
         double t = alignZero(_normal.dotProduct(qMinusP0) / nv);
 
         // intersection only if t > 0
-        // Only intersections in front of the ray
-        return t <= 0 ? null : List.of(ray.getPoint(t));    }
+        if (t <= 0) return null;
+
+        Point intersectionPoint = ray.getPoint(t);
+
+        return List.of(new Intersection(this, intersectionPoint));
+    }
 }

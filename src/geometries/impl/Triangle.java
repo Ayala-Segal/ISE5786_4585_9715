@@ -46,11 +46,14 @@ public class Triangle extends Polygon {
 
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
 
-        // Step 1: Find intersection with the supporting plane
-        List<Point> intersections = _plane.findIntersections(ray);
-        if (intersections == null) return null;
+        // Step 1: intersection with supporting plane
+        List<Intersection> planeIntersections = _plane.calcIntersections(ray);
+        if (planeIntersections == null) return null;
+
+        Intersection planeIntersection = planeIntersections.get(0);
+        Point p = planeIntersection.point;
 
         Point p0 = ray.origin();
         Vector v = ray.direction();
@@ -65,24 +68,24 @@ public class Triangle extends Polygon {
         Vector v2 = p2.subtract(p0);
         Vector v3 = p3.subtract(p0);
 
-        // Normals to the planes formed by the ray origin and triangle edges
+        // Normals
         Vector n1 = v1.crossProduct(v2);
         Vector n2 = v2.crossProduct(v3);
         Vector n3 = v3.crossProduct(v1);
 
-        // Dot products between ray direction and normals
         double s1 = alignZero(v.dotProduct(n1));
         double s2 = alignZero(v.dotProduct(n2));
         double s3 = alignZero(v.dotProduct(n3));
 
-        // If any value is zero → point is on edge or vertex → no intersection
+        // On edge or vertex → no intersection
         if (isZero(s1) || isZero(s2) || isZero(s3)) return null;
 
-        // Check if all signs are the same (point is inside triangle)
         boolean positive = (s1 > 0) && (s2 > 0) && (s3 > 0);
         boolean negative = (s1 < 0) && (s2 < 0) && (s3 < 0);
 
-        // Return intersection only if inside the triangle
-        return (positive || negative) ? intersections : null;
+        // inside triangle
+        return (positive || negative)
+                ? List.of(new Intersection(this, p))
+                : null;
     }
 }

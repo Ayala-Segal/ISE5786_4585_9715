@@ -43,61 +43,50 @@ public class Sphere extends RadialGeometry {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
 
-        // Ray origin and direction
         Point p0 = ray.origin();
         Vector v = ray.direction();
 
-        // Ray starts at the sphere center
+        // Special case: ray starts exactly at the center
         if (p0.equals(_center)) {
-            return List.of(ray.getPoint(_radius));
+            return List.of(new Intersection(this, ray.getPoint(_radius)));
         }
 
-        // Vector from sphere center to ray origin
         Vector u = p0.subtract(_center);
 
-        // Quadratic equation coefficients
         double a = v.dotProduct(v);
         double b = 2 * v.dotProduct(u);
         double c = u.dotProduct(u) - _radiusSquared;
 
-        // Compute discriminant
         double discriminant = alignZero(b * b - 4 * a * c);
 
-        // No intersections if discriminant is negative
-        if (discriminant < 0) return null;
-
-        // Single intersection (tangent case)
-        if (isZero(discriminant)) {
-            double t = alignZero(-b / (2 * a));
-            return t > 0 ? List.of(ray.getPoint(t)) : null;
+        if (discriminant <= 0) {
+            if (isZero(discriminant)) {
+                double t = alignZero(-b / (2 * a));
+                if (t > 0) {
+                    return List.of(new Intersection(this, ray.getPoint(t)));
+                }
+            }
+            return null;
         }
 
-        // Two intersection points
         double sqrt = Math.sqrt(discriminant);
 
         double t1 = alignZero((-b - sqrt) / (2 * a));
         double t2 = alignZero((-b + sqrt) / (2 * a));
 
-        List<Point> result = null;
+        List<Intersection> result = null;
 
-        // Both intersections are in front of the ray
         if (t1 > 0 && t2 > 0) {
             result = List.of(
-                    ray.getPoint(Math.min(t1, t2)),
-                    ray.getPoint(Math.max(t1, t2))
+                    new Intersection(this, ray.getPoint(t1)),
+                    new Intersection(this, ray.getPoint(t2))
             );
-        }
-
-        // Only first intersection is valid
-        else if (t1 > 0) {
-            result = List.of(ray.getPoint(t1));
-        }
-
-        // Only second intersection is valid
-        else if (t2 > 0) {
-            result = List.of(ray.getPoint(t2));
+        } else if (t1 > 0) {
+            result = List.of(new Intersection(this, ray.getPoint(t1)));
+        } else if (t2 > 0) {
+            result = List.of(new Intersection(this, ray.getPoint(t2)));
         }
 
         return result;
