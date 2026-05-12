@@ -123,15 +123,12 @@ class RenderStage6Tests {
    void testRenderAmbientColor() {
 
        Scene scene = new Scene("Ambient colors")
-               .setAmbientLight(new AmbientLight(new Color(255, 255, 255)));
+               .setAmbientLight(new AmbientLight(new Color(WHITE)));
 
        scene.geometries.add(
 
                _sphere
-                       .setEmission(new Color(0, 0, 100))
-                       .setMaterial(
-                               new Material().setKA(new Double3(0.4))
-                       ),
+                       .setMaterial(new Material().setKA(new Double3(0.4))),
 
                _triangleLeftTop
                        .setEmission(new Color(100, 0, 0))

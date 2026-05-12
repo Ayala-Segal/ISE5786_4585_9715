@@ -15,20 +15,20 @@ public abstract class Geometry extends Intersectable {
      * Emission color of the geometry.
      * Default value is black (no emission).
      */
-    private Color emission = Color.BLACK;
+    private Color _emission = Color.BLACK;
 
     /**
      * Material properties of the geometry.
      * Initialized with default material.
      */
-    private Material material = new Material();
+    private Material _material = new Material();
 
     public Color getEmission() {
-        return emission;
+        return _emission;
     }
 
     public Geometry setEmission(Color emission) {
-        this.emission = emission;
+        this._emission = emission;
         return this;
     }
 
@@ -38,7 +38,7 @@ public abstract class Geometry extends Intersectable {
      * @return the material
      */
     public Material getMaterial() {
-        return material;
+        return _material;
     }
 
     /**
@@ -48,7 +48,7 @@ public abstract class Geometry extends Intersectable {
      * @return this Geometry object (for method chaining)
      */
     public Geometry setMaterial(Material material) {
-        this.material = material;
+        this._material = material;
         return this;
     }
 
