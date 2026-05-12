@@ -48,7 +48,9 @@ class SimpleRayTracer extends RayTracerBase {
 
         Geometry geometry = (Geometry) intersection.geometry;
 
-        return scene.ambientLight.getIntensity()
-                .add(geometry.getEmission());
+        return geometry.getEmission().add(
+                scene.ambientLight.getIntensity()
+                        .scale(intersection.material.kA)
+        );
     }
 }

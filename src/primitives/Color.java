@@ -23,7 +23,7 @@ import static java.lang.Math.abs;
  * @author Dan Zilberstein
  */
 public final class Color {
-   /** Maximum value for the pixel's color component */
+    /** Maximum value for the pixel's color component */
    private static final int    MAX   = 255;
    /**
     * Tolerance used for comparing RGB components in equality checks.
