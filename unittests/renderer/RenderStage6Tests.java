@@ -131,19 +131,19 @@ class RenderStage6Tests {
                        .setMaterial(new Material().setKA(new Double3(0.4))),
 
                _triangleLeftTop
-                       .setEmission(new Color(100, 0, 0))
-                       .setMaterial(
-                               new Material().setKA(new Double3(0.8, 0, 0))
-                       ),
-
-               _triangleLeftBottom
-                       .setEmission(new Color(0, 100, 0))
+                       .setEmission(new Color(GREEN))
                        .setMaterial(
                                new Material().setKA(new Double3(0, 0.8, 0))
                        ),
 
+               _triangleLeftBottom
+                       .setEmission(new Color(RED))
+                       .setMaterial(
+                               new Material().setKA(new Double3(0.8, 0, 0))
+                       ),
+
                _triangleRightBottom
-                       .setEmission(new Color(0, 0, 100))
+                       .setEmission(new Color(BLUE))
                        .setMaterial(
                                new Material().setKA(new Double3(0, 0, 0.8))
                        )
