@@ -131,24 +131,21 @@ class RenderStage6Tests {
                        .setMaterial(new Material().setKA(new Double3(0.4))),
 
                _triangleLeftTop
-                       .setEmission(new Color(GREEN))
                        .setMaterial(
                                new Material().setKA(new Double3(0, 0.8, 0))
                        ),
 
                _triangleLeftBottom
-                       .setEmission(new Color(RED))
                        .setMaterial(
                                new Material().setKA(new Double3(0.8, 0, 0))
                        ),
 
                _triangleRightBottom
-                       .setEmission(new Color(BLUE))
                        .setMaterial(
                                new Material().setKA(new Double3(0, 0, 0.8))
                        )
        );
 
-       createImage(scene, "ambient render test");
+       createImage(scene, "ambient render test1");
    }
 }
