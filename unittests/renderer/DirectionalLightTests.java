@@ -8,7 +8,7 @@ import primitives.Vector;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DirectionalLightTest {
+class DirectionalLightTests {
 
     private final Color INTENSITY = new Color(100, 150, 200);
     private final Vector DIRECTION = new Vector(-1, -1, -1).normalize();
