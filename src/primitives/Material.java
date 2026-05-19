@@ -13,6 +13,21 @@ public class Material {
     public Double3 kA = Double3.ONE;
 
     /**
+     * Diffuse reflection coefficient.
+     */
+    public Double3 kD = Double3.ZERO;
+
+    /**
+     * Specular reflection coefficient.
+     */
+    public Double3 kS = Double3.ZERO;
+
+    /**
+     * Shininess factor for specular highlight concentration.
+     */
+    public int nShininess = 0;
+
+    /**
      * Default constructor.
      * Initializes material with default values.
      */
@@ -32,13 +47,67 @@ public class Material {
 
     /**
      * Sets the ambient reflection coefficient using a single double value.
-     * Converts the value into a Double3 object internally.
      *
      * @param kA ambient coefficient as a double
      * @return this Material object (for method chaining)
      */
     public Material setKA(double kA) {
         this.kA = new Double3(kA);
+        return this;
+    }
+
+    /**
+     * Sets the diffuse reflection coefficient using a Double3 object.
+     *
+     * @param kD diffuse coefficient
+     * @return this Material object (for method chaining)
+     */
+    public Material setKD(Double3 kD) {
+        this.kD = kD;
+        return this;
+    }
+
+    /**
+     * Sets the diffuse reflection coefficient using a single double value.
+     *
+     * @param kD diffuse coefficient as a double
+     * @return this Material object (for method chaining)
+     */
+    public Material setKD(double kD) {
+        this.kD = new Double3(kD);
+        return this;
+    }
+
+    /**
+     * Sets the specular reflection coefficient using a Double3 object.
+     *
+     * @param kS specular coefficient
+     * @return this Material object (for method chaining)
+     */
+    public Material setKS(Double3 kS) {
+        this.kS = kS;
+        return this;
+    }
+
+    /**
+     * Sets the specular reflection coefficient using a single double value.
+     *
+     * @param kS specular coefficient as a double
+     * @return this Material object (for method chaining)
+     */
+    public Material setKS(double kS) {
+        this.kS = new Double3(kS);
+        return this;
+    }
+
+    /**
+     * Sets the shininess factor.
+     *
+     * @param nShininess shininess exponent
+     * @return this Material object (for method chaining)
+     */
+    public Material setShininess(int nShininess) {
+        this.nShininess = nShininess;
         return this;
     }
 }

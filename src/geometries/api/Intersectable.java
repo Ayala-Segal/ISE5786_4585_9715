@@ -2,9 +2,11 @@ package geometries.api;
 
 import java.util.List;
 
+import lighting.LightSource;
 import primitives.Material;
 import primitives.Point;
 import primitives.Ray;
+import primitives.Vector;
 
 /**
  * An abstract base class representing all geometric objects
@@ -50,14 +52,35 @@ public abstract class Intersectable {
 
     /**
      * Represents a single intersection between a ray and a geometry.
+     * Also serves as a cache for precomputed lighting data.
      */
     public static final class Intersection {
 
-        public final Intersectable geometry;
-        public final Point point;
-        public Material material;
+        public final Geometry geometry;
+        public final Point         point;
+        public final Material      material;
 
-        public Intersection(Intersectable geometry, Point point) {
+        // ── cached geometry data (set by preprocessIntersection) ─────
+        /** The surface normal at the intersection point. */
+        public Vector n;
+
+        /** The direction of the incoming ray (viewer direction). */
+        public Vector v;
+
+        /** Dot product of v and normal (v · n). */
+        public double vn;
+
+        // ── cached light data (set by preprocessLightSource) ─────────
+        /** The current light source being evaluated. */
+        public LightSource light;
+
+        /** The direction from the light source to the intersection point. */
+        public Vector l;
+
+        /** Dot product of l and normal (l · n). */
+        public double ln;
+
+        public Intersection(Geometry geometry, Point point) {
             this.geometry = geometry;
             this.point = point;
 
