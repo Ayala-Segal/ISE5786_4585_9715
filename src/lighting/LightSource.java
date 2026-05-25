@@ -26,5 +26,15 @@ public interface LightSource {
      */
     Vector getL(Point p);
 
+    /**
+     * Returns the distance from the light source to the given point.
+     * Used to limit shadow ray intersection checks to the segment
+     * between the intersection point and the light source,
+     * preventing false shadowing by objects behind the light.
+     *
+     * @param point the illuminated point
+     * @return distance from the light source to the point
+     */
+    double getDistance(Point point);
 
 }

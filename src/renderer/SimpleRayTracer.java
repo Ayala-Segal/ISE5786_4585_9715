@@ -88,6 +88,9 @@ class SimpleRayTracer extends RayTracerBase {
      * the light source (by {@code DELTA}) to prevent self-shadowing due to
      * numerical precision errors.
      * <p>
+     * Only intersections closer to the shadow ray origin than the light source
+     * are considered blocking, preventing false shadowing by objects behind the light.
+     * <p>
      * Note: the shadow ray direction is the negation of the light vector {@code l}
      * (which points from the light source to the point), since we shoot from the
      * point toward the light source.
@@ -105,7 +108,16 @@ class SimpleRayTracer extends RayTracerBase {
         Vector delta = intersection.n.scale(intersection.ln < 0 ? DELTA : -DELTA);
         Ray shadowRay = new Ray(intersection.point.add(delta), pointToLight);
 
-        return scene.geometries.calcIntersections(shadowRay) == null;
+        List<Intersection> shadowIntersections = scene.geometries.calcIntersections(shadowRay);
+        if (shadowIntersections == null) return true;
+
+        double lightDistance = intersection.light.getDistance(intersection.point);
+
+        for (Intersection shadowIntersection : shadowIntersections) {
+            if (shadowIntersection.point.distance(intersection.point) < lightDistance)
+                return false;
+        }
+        return true;
     }
 
     /**
