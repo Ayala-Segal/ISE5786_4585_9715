@@ -32,7 +32,7 @@ public class SpotLight extends PointLight {
         double d = position.distance(p);
         double attenuation = kC + kL * d + kQ * d * d;
         double cos = Math.max(0, direction.dotProduct(l));
-        return intensity.scale(cos / attenuation);
+        return _intensity.scale(cos / attenuation);
     }
 
     @Override

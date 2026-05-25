@@ -25,4 +25,6 @@ public interface LightSource {
      * @return normalized light direction vector
      */
     Vector getL(Point p);
+
+
 }

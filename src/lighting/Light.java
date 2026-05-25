@@ -10,7 +10,7 @@ abstract class Light {
     /**
      * The original intensity of the light.
      */
-    protected final Color intensity;
+    protected final Color _intensity;
 
     /**
      * Protected constructor for derived light classes.
@@ -18,7 +18,7 @@ abstract class Light {
      * @param intensity light intensity
      */
     protected Light(Color intensity) {
-        this.intensity = intensity;
+        this._intensity = intensity;
     }
 
     /**
@@ -27,6 +27,6 @@ abstract class Light {
      * @return light intensity
      */
     public Color getIntensity() {
-        return intensity;
+        return _intensity;
     }
 }

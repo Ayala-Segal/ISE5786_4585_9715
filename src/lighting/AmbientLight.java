@@ -10,7 +10,7 @@ import primitives.Color;
  * to other light sources.
  * </p>
  */
-public class AmbientLight extends  Light {
+public class AmbientLight extends Light {
 
 
     /**
