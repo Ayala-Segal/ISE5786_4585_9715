@@ -43,13 +43,21 @@ class SimpleRayTracer extends RayTracerBase {
     }
 
     /**
-     * Calculates the color of a ray by tracing it into the scene.
+     * Non-recursive entry point for color calculation.
+     * Adds ambient light once (not repeated in recursion),
+     * preprocesses the intersection, then delegates to the recursive overload.
      *
-     * @param ray the ray to trace
-     * @return the resulting color
+     * @param intersection the closest intersection
+     * @param ray          the incoming ray
+     * @return resulting color including ambient light and all effects
      */
     private Color calcColor(Intersection intersection, Ray ray) {
-        return calcColor(intersection, MAX_CALC_COLOR_LEVEL, INITIAL_K);
+        if (!preprocessIntersection(intersection, ray.direction()))
+            return Color.BLACK;
+
+        return scene.ambientLight.getIntensity()
+                .scale(intersection.material.kA)
+                .add(calcColor(intersection, MAX_CALC_COLOR_LEVEL, INITIAL_K));
     }
 
     /**
@@ -216,39 +224,41 @@ class SimpleRayTracer extends RayTracerBase {
     }
 
     /**
-     * Calculates global lighting effect for reflection or refraction rays.
+     * Calculates the color contribution of a single global effect (reflection or refraction).
      *
      * The method:
-     * - Finds intersections of the secondary ray with the scene
-     * - Selects the closest intersection
-     * - Recursively computes its color using calcColor
-     * - Returns background color if no intersection exists
-     * - Multiplies the resulting color by the material attenuation factor (kx)
+     * - Computes the accumulated attenuation kkx = k * kx; if too small, returns BLACK (recursion stop)
+     * - Finds the closest intersection of the secondary ray
+     * - Preprocesses the new intersection with the secondary ray direction
+     * - Recursively computes color with the accumulated attenuation kkx
+     * - Scales the result by kx (material attenuation factor)
+     * - Returns background (scaled by kx) if no intersection is found
      *
      * @param ray   secondary ray (reflection or refraction)
-     * @param k     accumulated attenuation factor (not used directly here but kept for interface consistency)
-     * @param level recursion depth
-     * @param kx    material attenuation factor (reflection or transparency coefficient)
-     * @return global illumination color contribution
+     * @param k     accumulated attenuation factor from previous recursion levels
+     * @param level remaining recursion depth
+     * @param kx    material attenuation factor (kR for reflection, kT for transparency)
+     * @return color contribution of this global effect
      */
     private Color calcGlobalEffect(Ray ray, Double3 k, int level, Double3 kx) {
 
-        List<Intersection> intersections = scene.geometries.calcIntersections(ray);
+        // accumulated attenuation: if too small, no visible contribution
+        Double3 kkx = k.product(kx);
+        if (kkx.isLowerThan(MIN_CALC_COLOR_K))
+            return Color.BLACK;
 
-        // no hit → background color
-        if (intersections == null)
-            return scene.background;
+        Intersection closest = findClosestIntersection(ray);
 
-        Intersection closest = ray.findClosestIntersection(intersections);
-
+        // no hit → background scaled by material attenuation
         if (closest == null)
-            return scene.background;
+            return scene.background.scale(kx);
 
-        // recursive color calculation
-        Color color = calcColor(closest, level - 1, k);
+        // preprocess the new intersection with the secondary ray direction
+        if (!preprocessIntersection(closest, ray.direction()))
+            return Color.BLACK;
 
-        // apply material attenuation factor (NOT accumulated k)
-        return color.scale(kx);
+        // recursive color calculation with accumulated k
+        return calcColor(closest, level - 1, kkx).scale(kx);
     }
 
     /**
