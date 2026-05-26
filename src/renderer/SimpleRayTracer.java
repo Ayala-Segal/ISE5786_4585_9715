@@ -19,14 +19,6 @@ class SimpleRayTracer extends RayTracerBase {
     private static final int MAX_CALC_COLOR_LEVEL = 10;
     private static final double MIN_CALC_COLOR_K = 0.001;
     private static final Double3 INITIAL_K = Double3.ONE;
-    /**
-     * Small offset used to shift the shadow ray origin along the surface normal,
-     * preventing self-shadowing due to numerical precision errors.
-     * The value is chosen to be small enough to be imperceptible in the rendered image,
-     * yet large enough to avoid false self-intersections.
-     * Can be adjusted based on the scale of the scene geometry.
-     */
-    private static final double DELTA = 0.1;
 
     SimpleRayTracer(Scene scene) {
         super(scene);
@@ -92,17 +84,26 @@ class SimpleRayTracer extends RayTracerBase {
      * @return resulting color from all light contributions
      */
     private Color calcLocalEffects(Intersection intersection) {
+
         Color color = intersection.geometry.getEmission();
 
         for (LightSource lightSource : scene.lights) {
-            if (setLightSource(intersection, lightSource) && unshaded(intersection)) {
+
+            if (setLightSource(intersection, lightSource)) {
+
+                Double3 ktr = transparency(intersection);
+
                 color = color.add(
                         lightSource.getIntensity(intersection.point)
-                                .scale(calcDiffuse(intersection)
-                                        .add(calcSpecular(intersection)))
+                                .scale(ktr)
+                                .scale(
+                                        calcDiffuse(intersection)
+                                                .add(calcSpecular(intersection))
+                                )
                 );
-            }
+                }
         }
+
         return color;
     }
 
@@ -124,12 +125,9 @@ class SimpleRayTracer extends RayTracerBase {
      */
     private boolean unshaded(Intersection intersection) {
 
-        // direction from point to light
         Vector pointToLight = intersection.l.scale(-1);
 
-        // shift origin to avoid self-intersection
-        Vector delta = intersection.n.scale(intersection.ln < 0 ? DELTA : -DELTA);
-        Ray shadowRay = new Ray(intersection.point.add(delta), pointToLight);
+        Ray shadowRay = new Ray(intersection.point, pointToLight, intersection.n);
 
         List<Intersection> shadowIntersections =
                 scene.geometries.calcIntersections(shadowRay);
@@ -141,10 +139,8 @@ class SimpleRayTracer extends RayTracerBase {
 
         for (Intersection shadowIntersection : shadowIntersections) {
 
-            // only consider objects between point and light
             if (shadowIntersection.point.distance(intersection.point) < lightDistance) {
 
-                // check transparency threshold
                 Double3 kt = shadowIntersection.geometry.getMaterial().kT;
 
                 if (kt.isLowerThan(new Double3(MIN_CALC_COLOR_K))) {
@@ -154,6 +150,43 @@ class SimpleRayTracer extends RayTracerBase {
         }
 
         return true;
+    }
+
+    private Double3 transparency(Intersection intersection) {
+
+        Double3 ktr = Double3.ONE;
+
+        Vector pointToLight = intersection.l.scale(-1);
+
+        Ray shadowRay = new Ray(
+                intersection.point,
+                pointToLight,
+                intersection.n
+        );
+
+        List<Intersection> shadowIntersections =
+                scene.geometries.calcIntersections(shadowRay);
+
+        if (shadowIntersections == null) {
+            return ktr;
+        }
+
+        double lightDistance =
+                intersection.light.getDistance(intersection.point);
+
+        for (Intersection si : shadowIntersections) {
+
+            if (si.point.distance(intersection.point) < lightDistance) {
+
+                ktr = ktr.product(si.material.kT);
+
+                if (ktr.isLowerThan(MIN_CALC_COLOR_K)) {
+                    return Double3.ZERO;
+                }
+            }
+        }
+
+        return ktr;
     }
     /**
      * Calculates the diffuse component of the Phong reflection model.
@@ -199,9 +232,7 @@ class SimpleRayTracer extends RayTracerBase {
 
         Vector r = v.subtract(n.scale(2 * v.dotProduct(n)));
 
-        Vector delta = n.scale(intersection.n.dotProduct(v) > 0 ? DELTA : -DELTA);
-
-        return new Ray(p.add(delta), r);
+        return new Ray(p, r, n);
     }
 
     /**
@@ -218,9 +249,7 @@ class SimpleRayTracer extends RayTracerBase {
      */
     private Ray constructRefractionRay(Point p, Vector v, Vector n, Intersection intersection) {
 
-        Vector delta = n.scale(intersection.n.dotProduct(v) > 0 ? -DELTA : DELTA);
-
-        return new Ray(p.add(delta), v);
+        return new Ray(p, v, n);
     }
 
     /**

@@ -10,12 +10,29 @@ import java.util.Objects;
  */
 public class Ray {
 
+    /**
+     * Small offset used to shift the shadow ray origin along the surface normal,
+     * preventing self-shadowing due to numerical precision errors.
+     * The value is chosen to be small enough to be imperceptible in the rendered image,
+     * yet large enough to avoid false self-intersections.
+     * Can be adjusted based on the scale of the scene geometry.
+     */
+    private static final double DELTA = 0.1;
     private final Point _origin;
     private final Vector _direction;
 
     public Ray(Point origin, Vector direction) {
         this._origin = origin;
         this._direction = direction.normalize();
+    }
+
+    public Ray(Point origin, Vector direction, Vector normal) {
+        this._direction = direction.normalize();
+
+        double nv = normal.dotProduct(this._direction);
+        Vector delta = normal.scale(nv > 0 ? DELTA : -DELTA);
+
+        this._origin = origin.add(delta);
     }
 
     public Point origin() {
