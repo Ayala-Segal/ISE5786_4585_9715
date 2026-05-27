@@ -141,23 +141,31 @@ public record Double3(double _d1, double _d2, double _d3) {
     }
 
     /**
-     * Checks whether this triad is not lower than the given value.
+     * Checks whether at least one component of this triad is greater than
+     * or equal to the given scalar.
+     * This is the logical negation of {@link #isLowerThan(double)},
+     * implemented using De Morgan's law:
+     * NOT (d1 < k AND d2 < k AND d3 < k) = (d1 >= k OR d2 >= k OR d3 >= k)
      *
-     * @param k the value to compare against
-     * @return {@code true} if this triad is greater than or equal to {@code k}
+     * @param k the scalar threshold
+     * @return {@code true} if at least one component is >= k
      */
     public boolean isGreaterThan(double k) {
-        return !isLowerThan(k);
+        return _d1 >= k || _d2 >= k || _d3 >= k;
     }
 
     /**
-     * Checks whether this triad is not lower than another triad.
+     * Checks whether at least one component of this triad is greater than
+     * or equal to the corresponding component of another triad.
+     * This is the logical negation of {@link #isLowerThan(Double3)},
+     * implemented using De Morgan's law:
+     * NOT (d1 < o.d1 AND d2 < o.d2 AND d3 < o.d3) = (d1 >= o.d1 OR d2 >= o.d2 OR d3 >= o.d3)
      *
      * @param other the triad to compare with
-     * @return {@code true} if this triad is greater than or equal to {@code other}
+     * @return {@code true} if at least one component is >= the corresponding component
      */
     public boolean isGreaterThan(Double3 other) {
-        return !isLowerThan(other);
+        return _d1 >= other._d1 || _d2 >= other._d2 || _d3 >= other._d3;
     }
 
 }

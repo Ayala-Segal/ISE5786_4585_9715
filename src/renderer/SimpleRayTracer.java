@@ -66,10 +66,10 @@ class SimpleRayTracer extends RayTracerBase {
         if (level == 0 || k.isLowerThan(MIN_CALC_COLOR_K))
             return Color.BLACK;
 
-        // local effects (כפי שכתוב בדרישה)
-        Color color = calcLocalEffects(intersection);
+        // local effects
+        Color color = calcLocalEffects(intersection, k);
 
-        // global effects (כפי שכתוב בסעיף ז)
+        // global effects
         color = color.add(calcGlobalEffects(intersection, k, level));
 
         return color;
@@ -83,7 +83,7 @@ class SimpleRayTracer extends RayTracerBase {
      * @param intersection the intersection point with precomputed data
      * @return resulting color from all light contributions
      */
-    private Color calcLocalEffects(Intersection intersection) {
+    private Color calcLocalEffects(Intersection intersection, Double3 k) {
 
         Color color = intersection.geometry.getEmission();
 
@@ -93,15 +93,17 @@ class SimpleRayTracer extends RayTracerBase {
 
                 Double3 ktr = transparency(intersection);
 
-                color = color.add(
-                        lightSource.getIntensity(intersection.point)
-                                .scale(ktr)
-                                .scale(
-                                        calcDiffuse(intersection)
-                                                .add(calcSpecular(intersection))
-                                )
-                );
+                if (ktr.product(k).isGreaterThan(MIN_CALC_COLOR_K)) {
+                    color = color.add(
+                            lightSource.getIntensity(intersection.point)
+                                    .scale(ktr)
+                                    .scale(
+                                            calcDiffuse(intersection)
+                                                    .add(calcSpecular(intersection))
+                                    )
+                    );
                 }
+            }
         }
 
         return color;
