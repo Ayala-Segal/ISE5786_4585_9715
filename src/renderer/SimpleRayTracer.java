@@ -145,7 +145,7 @@ class SimpleRayTracer extends RayTracerBase {
 
                 Double3 kt = shadowIntersection.geometry.getMaterial().kT;
 
-                if (kt.isLowerThan(new Double3(MIN_CALC_COLOR_K))) {
+                if (kt.isLowerThan(MIN_CALC_COLOR_K)) {
                     return false;
                 }
             }
@@ -154,6 +154,28 @@ class SimpleRayTracer extends RayTracerBase {
         return true;
     }
 
+    /**
+     * Computes the accumulated transparency attenuation factor along
+     * the shadow ray from the intersection point toward the light source.
+     * <p>
+     * For each geometry intersected along the shadow ray (between the point
+     * and the light source), its transparency coefficient {@code kT} is
+     * multiplied into the running result {@code ktr}.
+     * This models partial shadows: the more opaque objects block the path,
+     * the weaker the light that reaches the point.
+     * <p>
+     * If the accumulated factor drops below {@code MIN_CALC_COLOR_K},
+     * the method returns {@link Double3#ZERO} immediately for performance.
+     * <p>
+     * The shadow ray origin is shifted along the surface normal using the
+     * special {@link Ray} constructor to avoid self-intersection.
+     *
+     * @param intersection the intersection point with precomputed light
+     *                     data (l, n, light)
+     * @return accumulated transparency factor:
+     *         {@link Double3#ONE} = fully unblocked,
+     *         {@link Double3#ZERO} = fully blocked
+     */
     private Double3 transparency(Intersection intersection) {
 
         Double3 ktr = Double3.ONE;
@@ -190,6 +212,7 @@ class SimpleRayTracer extends RayTracerBase {
 
         return ktr;
     }
+
     /**
      * Calculates the diffuse component of the Phong reflection model.
      * Formula: kD * |l · n|

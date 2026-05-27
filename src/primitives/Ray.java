@@ -17,9 +17,9 @@ public class Ray {
      * yet large enough to avoid false self-intersections.
      * Can be adjusted based on the scale of the scene geometry.
      */
-    private static final double DELTA = 0.1;
     private final Point _origin;
     private final Vector _direction;
+    private static final double DELTA = 0.1;
 
     public Ray(Point origin, Vector direction) {
         this._origin = origin;
