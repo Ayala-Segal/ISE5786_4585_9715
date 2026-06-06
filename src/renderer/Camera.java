@@ -1,10 +1,9 @@
 package renderer;
 
+import java.util.List;
 import java.util.MissingResourceException;
-import primitives.Color;
-import primitives.Point;
-import primitives.Ray;
-import primitives.Vector;
+
+import primitives.*;
 import scene.Scene;
 
 /**
@@ -24,6 +23,8 @@ public class Camera implements Cloneable {
 
     private ImageWriter _imageWriter;
     private RayTracerBase _rayTracer;
+
+    private Blackboard _antiAliasingBlackboard = new Blackboard();
 
     private Camera() {}
 
@@ -85,12 +86,49 @@ public class Camera implements Cloneable {
      * @param xIndex column index of the pixel
      * @param yIndex row index of the pixel
      */
+//    private void castRay(int xIndex, int yIndex) {
+//        Ray ray = constructRay(xIndex, yIndex);
+//        Color color = _rayTracer.traceRay(ray);
+//        _imageWriter.writePixel(xIndex, yIndex, color);
+//    }
+
     private void castRay(int xIndex, int yIndex) {
-        Ray ray = constructRay(xIndex, yIndex);
-        Color color = _rayTracer.traceRay(ray);
+        Color color = castRayBeam(xIndex, yIndex);
         _imageWriter.writePixel(xIndex, yIndex, color);
     }
 
+    private Color castRayBeam(int xIndex, int yIndex) {
+        // center point of this pixel on the view plane
+        Point pixelCenter = getPixelCenter(xIndex, yIndex);
+
+        Blackboard bb = _antiAliasingBlackboard;
+
+        // no super-sampling
+        if (bb.getNumSamples() <= 1 || Util.isZero(bb.getSize())) {
+            return _rayTracer.traceRay(new Ray(_p0, pixelCenter.subtract(_p0)));
+        }
+
+        // generate sample points inside the pixel
+        List<Point> samplePoints = bb.generatePoints(pixelCenter, _vRight, _vUp);
+
+        Color sum = Color.BLACK;
+        for (Point p : samplePoints) {
+            Ray ray = new Ray(_p0, p.subtract(_p0));
+            sum = sum.add(_rayTracer.traceRay(ray));
+        }
+
+        return sum.reduce(samplePoints.size());
+    }
+
+    private Point getPixelCenter(int xIndex, int yIndex) {
+        double xOffset = (xIndex - (_nX - 1) / 2.0) * _pixelWidth;
+        double yOffset = -((yIndex - (_nY - 1) / 2.0) * _pixelHeight);
+
+        Point p = _vpCenter;
+        if (!Util.isZero(xOffset)) p = p.add(_vRight.scale(xOffset));
+        if (!Util.isZero(yOffset)) p = p.add(_vUp.scale(yOffset));
+        return p;
+    }
     /**
      * Draws a grid over the rendered image with the given interval
      * and color. Pixels whose row or column index is a multiple of
@@ -242,6 +280,25 @@ public class Camera implements Cloneable {
             } else {
                 throw new IllegalArgumentException("Unsupported ray tracer type: " + type);
             }
+            return this;
+        }
+
+        /**
+         * Configures the camera's anti-aliasing super-sampling behavior.
+         * <p>
+         * When a {@link Blackboard} with more than one sample and a non-zero size
+         * is provided, the camera will cast multiple rays through each pixel
+         * (distributed across the pixel area) and average the resulting colors,
+         * producing smoother edges and reducing pixelation artifacts.
+         * <p>
+         * To disable anti-aliasing, pass a default {@code Blackboard} (1 sample or size 0).
+         *
+         * @param blackboard the sampling configuration for anti-aliasing;
+         *                   must not be {@code null}
+         * @return this {@code Builder} instance (for chaining)
+         */
+        public Builder setAntiAliasing(Blackboard blackboard) {
+            _camera._antiAliasingBlackboard = blackboard;
             return this;
         }
 
