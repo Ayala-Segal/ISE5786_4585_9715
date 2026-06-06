@@ -8,10 +8,13 @@ import java.util.MissingResourceException;
 
 import org.junit.jupiter.api.Test;
 
+import primitives.Blackboard;
+import primitives.Color;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 import renderer.Camera.Builder;
+import scene.Scene;
 
 /**
  * Unit tests for class {@link Camera}.
@@ -271,4 +274,126 @@ class CameraTests {
       Ray rayBV06 = camera3x3.constructRay(0, 0);
       assertEquals(new Ray(LOCATION, new Vector(-2, 2, -10)), rayBV06, ERROR_CONSTRUCT_RAY);
    }
+    // ============================================================
+// Anti-Aliasing (Super-Sampling) Tests
+// ============================================================
+
+    /** Scene used for anti-aliasing tests. */
+    private static final Scene AA_SCENE = new Scene("AntiAliasingTest")
+            .setBackground(new Color(200, 200, 200));
+
+    /** Basic camera builder for anti-aliasing tests. */
+    private Camera.Builder aaBuilder() {
+        return Camera.getBuilder()
+                .setLocation(new Point(0, 0, 10))
+                .setDirection(new Vector(0, 0, -1), Vector.AXIS_Y)
+                .setVpSize(6, 6)
+                .setVpDistance(10)
+                .setResolution(3, 3)
+                .setRayTracer(AA_SCENE, RayTracerType.SIMPLE);
+    }
+
+    /**
+     * Test method for anti-aliasing Blackboard configuration.
+     * Verifies that the Camera builds correctly under various
+     * Blackboard configurations, and that single-sample Blackboard
+     * produces the same ray as the default (no anti-aliasing).
+     */
+    @Test
+    void testAntiAliasing() {
+
+        // ============ Equivalence Partitions Tests ==============
+
+        // EP01: Build succeeds with default Blackboard (no anti-aliasing)
+        assertDoesNotThrow(
+                () -> baseBuilder()
+                        .setDirection(V_TO, V_UP)
+                        .setVpSize(6, 6)
+                        .build(),
+                "Build with default Blackboard should not throw"
+        );
+
+        // EP02: Build succeeds with a valid multi-sample Blackboard (9 samples)
+        assertDoesNotThrow(
+                () -> baseBuilder()
+                        .setDirection(V_TO, V_UP)
+                        .setVpSize(6, 6)
+                        .setAntiAliasing(new Blackboard().setSize(2).setNumSamples(9))
+                        .build(),
+                "Build with 9-sample Blackboard should not throw"
+        );
+
+        // EP03: numSamples=1 produces the same central ray as the default Blackboard.
+        // Both send exactly one ray through the pixel center — results must be equal.
+        Camera cameraDefault = baseBuilder()
+                .setDirection(V_TO, V_UP)
+                .setVpSize(6, 6)
+                .setResolution(3, 3)
+                .build();
+
+        Camera cameraOneSample = baseBuilder()
+                .setDirection(V_TO, V_UP)
+                .setVpSize(6, 6)
+                .setResolution(3, 3)
+                .setAntiAliasing(new Blackboard().setSize(2).setNumSamples(1))
+                .build();
+
+        assertEquals(
+                cameraDefault.constructRay(1, 1),
+                cameraOneSample.constructRay(1, 1),
+                "1-sample Blackboard must produce the same ray as default"
+        );
+
+        // =============== Boundary Values Tests ==================
+
+        // BV01: size=0 disables anti-aliasing — build must succeed
+        assertDoesNotThrow(
+                () -> baseBuilder()
+                        .setDirection(V_TO, V_UP)
+                        .setVpSize(6, 6)
+                        .setAntiAliasing(new Blackboard().setSize(0).setNumSamples(81))
+                        .build(),
+                "size=0 should disable anti-aliasing silently and not throw"
+        );
+
+        // BV02: size=0 produces the same ray as default (anti-aliasing is off)
+        Camera cameraDefault2 = baseBuilder()
+                .setDirection(V_TO, V_UP)
+                .setVpSize(6, 6)
+                .setResolution(3, 3)
+                .build();
+
+        Camera cameraSizeZero = baseBuilder()
+                .setDirection(V_TO, V_UP)
+                .setVpSize(6, 6)
+                .setResolution(3, 3)
+                .setAntiAliasing(new Blackboard().setSize(0).setNumSamples(81))
+                .build();
+
+        assertEquals(
+                cameraDefault2.constructRay(1, 1),
+                cameraSizeZero.constructRay(1, 1),
+                "size=0 Blackboard must produce the same ray as default"
+        );
+
+        // BV03: Large sample count (81 = 9x9 grid) — build must succeed
+        assertDoesNotThrow(
+                () -> baseBuilder()
+                        .setDirection(V_TO, V_UP)
+                        .setVpSize(6, 6)
+                        .setAntiAliasing(new Blackboard().setSize(2).setNumSamples(81))
+                        .build(),
+                "81-sample Blackboard should not throw"
+        );
+
+        // BV04: Minimum useful sample count (4 = 2x2 grid) — build must succeed
+        assertDoesNotThrow(
+                () -> baseBuilder()
+                        .setDirection(V_TO, V_UP)
+                        .setVpSize(6, 6)
+                        .setAntiAliasing(new Blackboard().setSize(2).setNumSamples(4))
+                        .build(),
+                "4-sample Blackboard should not throw"
+        );
+    }
 }
