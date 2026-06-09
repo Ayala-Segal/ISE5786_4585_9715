@@ -14,22 +14,23 @@ import scene.Scene;
 import static java.awt.Color.*;
 
 /**
- * Visual demonstration tests for the anti-aliasing super-sampling improvement.
+ * Second visual demonstration of the anti-aliasing super-sampling improvement.
  * <p>
- * Each test pair renders the same rich scene twice:
+ * Same rules as {@code AntiAliasingTests}: exactly 10 geometries and 3 light
+ * sources, rendered twice with the identical camera so the only difference
+ * between the two output images is the anti-aliasing setting.
  * <ul>
- *   <li>{@code testAntiAliasingBefore} — without anti-aliasing (single ray per pixel)</li>
- *   <li>{@code testAntiAliasingAfter}  — with anti-aliasing (81 samples per pixel, 9x9 grid)</li>
+ *   <li>{@code testShowcaseBefore} — single ray per pixel (no anti-aliasing)</li>
+ *   <li>{@code testShowcaseAfter}  — 81 samples per pixel (9x9 grid)</li>
  * </ul>
- * Compare the two output images to observe the improvement:
- * jagged staircase edges on curved and diagonal surfaces become smooth.
  * <p>
- * Scene contains 10 geometries and 3 light sources positioned to maximize
- * visible aliasing artifacts on curved and diagonal edges.
- * Render time is printed to the console for both runs to illustrate
- * the performance cost of super-sampling.
+ * The scene is a "glass orbs over a mirror floor" still life: a large
+ * transparent sphere flanked by a ring of smaller coloured spheres, all
+ * resting on a reflective floor, with two diagonal mountain triangles in
+ * the background. Curved silhouettes and slanted edges are placed where the
+ * staircase effect is easiest to spot. Render time is printed for both runs.
  */
-class AntiAliasingTests {
+class AntiAliasingTests{
 
     /** Default constructor to satisfy JavaDoc generator */
     AntiAliasingTests() { /* to satisfy JavaDoc generator */ }
@@ -46,98 +47,96 @@ class AntiAliasingTests {
 
     /**
      * Builds and returns the shared scene used in both tests.
-     * Contains 10 geometries and 3 light sources.
+     * Contains exactly 10 geometries and 3 light sources.
      *
      * @return fully configured Scene
      */
     private Scene buildScene() {
-        Scene scene = new Scene("AntiAliasingDemo");
+        Scene scene = new Scene("AntiAliasingTests");
 
         scene.geometries.add(
-                // 1. Large central sphere — curved edge shows aliasing clearly
-                new Sphere(new Point(0, 0, -100), 45d)
-                        .setEmission(new Color(20, 60, 150))
-                        .setMaterial(new Material().setKD(0.4).setKS(0.4).setKT(0.2).setShininess(80)),
+                // 1. Reflective floor plane — mirrors the orbs, slanted reflections show aliasing
+                new Plane(new Point(0, -110, 0), new Vector(0, 1, 0))
+                        .setEmission(new Color(18, 18, 26))
+                        .setMaterial(new Material().setKD(0.5).setKS(0.3).setShininess(120)
+                                .setKR(0.25)),
 
-                // 2. Small sphere top-right — thin silhouette reveals jagged edges
-                new Sphere(new Point(70, 50, -120), 18d)
-                        .setEmission(new Color(180, 30, 30))
+                // 2. Central large glass sphere — transparent, dominant curved silhouette
+                new Sphere(new Point(0, -25, -120), 50d)
+                        .setEmission(new Color(10, 25, 45))
+                        .setMaterial(new Material().setKD(0.2).setKS(0.5).setKT(0.45).setShininess(150)),
+
+                // 3. Left orb — cool blue
+                new Sphere(new Point(-78, -58, -100), 22d)
+                        .setEmission(new Color(30, 70, 180))
+                        .setMaterial(new Material().setKD(0.4).setKS(0.5).setShininess(90)),
+
+                // 4. Right orb — warm red
+                new Sphere(new Point(72, -52, -95), 25d)
+                        .setEmission(new Color(180, 35, 35))
+                        .setMaterial(new Material().setKD(0.4).setKS(0.4).setShininess(70)),
+
+                // 5. Front-right small orb — emerald
+                new Sphere(new Point(42, -78, -70), 15d)
+                        .setEmission(new Color(30, 150, 70))
                         .setMaterial(new Material().setKD(0.4).setKS(0.4).setShininess(60)),
 
-                // 3. Small sphere bottom-left
-                new Sphere(new Point(-70, -50, -110), 15d)
-                        .setEmission(new Color(30, 150, 60))
-                        .setMaterial(new Material().setKD(0.4).setKS(0.3).setShininess(40)),
+                // 6. Front-left small orb — amber
+                new Sphere(new Point(-38, -80, -75), 14d)
+                        .setEmission(new Color(210, 150, 30))
+                        .setMaterial(new Material().setKD(0.4).setKS(0.4).setShininess(60)),
 
-                // 4. Diagonal triangle — slanted edge is where aliasing is most visible
+                // 7. Upper-right metallic orb — highly reflective, thin bright edge
+                new Sphere(new Point(58, 32, -130), 20d)
+                        .setEmission(new Color(60, 60, 60))
+                        .setMaterial(new Material().setKD(0.2).setKS(0.7).setShininess(160)
+                                .setKR(0.3)),
+
+                // 8. Upper-left small orb — violet, isolated silhouette against background
+                new Sphere(new Point(-52, 46, -110), 13d)
+                        .setEmission(new Color(120, 40, 160))
+                        .setMaterial(new Material().setKD(0.4).setKS(0.4).setShininess(80)),
+
+                // 9. Left background triangle — diagonal "mountain" slope
                 new Triangle(
-                        new Point(-160, -80, -160),
-                        new Point(160, -80, -160),
-                        new Point(80, 100, -160))
-                        .setEmission(new Color(120, 80, 20))
+                        new Point(-185, -110, -175),
+                        new Point(-35, -110, -175),
+                        new Point(-110, 72, -175))
+                        .setEmission(new Color(55, 40, 80))
                         .setMaterial(new Material().setKD(0.6).setKS(0.2).setShininess(20)),
 
-                // 5. Second diagonal triangle — opposite slope, aliasing in both directions
+                // 10. Right background triangle — opposite slope, aliasing in both directions
                 new Triangle(
-                        new Point(-160, 80, -170),
-                        new Point(160, -90, -170),
-                        new Point(-80, -90, -170))
-                        .setEmission(new Color(80, 20, 120))
-                        .setMaterial(new Material().setKD(0.5).setKS(0.3).setShininess(30)),
-
-                // 6. Floor plane
-                new Plane(new Point(0, -110, 0), new Vector(0, 1, 0))
-                        .setEmission(new Color(40, 40, 40))
-                        .setMaterial(new Material().setKD(0.6).setKS(0.2).setShininess(10)
-                                .setKR(0.15)),
-
-                // 7. Medium sphere on the left — partially behind large sphere
-                new Sphere(new Point(-90, -20, -130), 25d)
-                        .setEmission(new Color(160, 100, 20))
-                        .setMaterial(new Material().setKD(0.5).setKS(0.3).setShininess(50)),
-
-                // 8. Small reflective sphere on the right
-                new Sphere(new Point(90, -30, -90), 20d)
-                        .setEmission(new Color(200, 200, 200))
-                        .setMaterial(new Material().setKD(0.2).setKS(0.6).setShininess(100)),
-
-                // 9. Thin tall triangle — near-vertical edge exaggerates staircase effect
-                new Triangle(
-                        new Point(-120, -100, -140),
-                        new Point(-90,  100, -140),
-                        new Point(-60, -100, -140))
-                        .setEmission(new Color(20, 120, 160))
-                        .setMaterial(new Material().setKD(0.5).setKS(0.3).setShininess(40)),
-
-                // 10. Small sphere at the top — isolated silhouette against dark background
-                new Sphere(new Point(10, 90, -80), 14d)
-                        .setEmission(new Color(220, 180, 30))
-                        .setMaterial(new Material().setKD(0.4).setKS(0.5).setShininess(70))
+                        new Point(25, -110, -172),
+                        new Point(185, -110, -172),
+                        new Point(100, 90, -172))
+                        .setEmission(new Color(40, 70, 90))
+                        .setMaterial(new Material().setKD(0.6).setKS(0.2).setShininess(20))
         );
 
-        scene.setAmbientLight(new AmbientLight(new Color(15, 15, 15)));
+        scene.setAmbientLight(new AmbientLight(new Color(16, 16, 20)));
 
-        // Light 1: main spot from upper-left — strong highlights and edges
+        // Light 1: main spot from upper-left — crisp highlights and edge contrast
         scene.lights.add(
                 new SpotLight(
-                        new Color(700, 500, 300),
-                        new Point(-200, 200, 200),
+                        new Color(750, 540, 360),
+                        new Point(-220, 220, 200),
                         new Vector(1, -1, -2))
                         .setKl(0.00002).setKq(0.000002)
         );
 
-        // Light 2: point light from upper-right — fills shadows, adds depth
+        // Light 2: cool point light from upper-right — fills shadows, adds depth
         scene.lights.add(
                 new PointLight(
-                        new Color(400, 400, 600),
-                        new Point(200, 150, 100))
+                        new Color(350, 380, 600),
+                        new Point(220, 160, 120))
                         .setKl(0.00003).setKq(0.000005)
         );
 
-        // Light 3: directional light from below — reveals bottom edges
+        // Light 3: directional rim light from below — picks out bottom edges
         scene.lights.add(
                 new DirectionalLight(
-                        new Color(100, 100, 200),
+                        new Color(90, 90, 170),
                         new Vector(0, 1, -1))
         );
         return scene;
@@ -145,7 +144,8 @@ class AntiAliasingTests {
 
     /**
      * Builds and returns the shared camera builder pointing at the scene.
-     * Anti-aliasing is NOT configured here — each test sets it independently.
+     * Anti-aliasing is NOT configured here — each test sets it independently
+     * so the two renders differ only in that one setting.
      *
      * @param scene the scene to render
      * @return configured camera builder
@@ -163,15 +163,15 @@ class AntiAliasingTests {
     // ── Tests ────────────────────────────────────────────────────────────────
 
     /**
-     * Renders the demo scene WITHOUT anti-aliasing (single ray per pixel).
+     * Renders the showcase scene WITHOUT anti-aliasing (single ray per pixel).
      * <p>
-     * Output file: {@code antiAliasing_before.png}
+     * Output file: {@code AntiAliasingTests_before.png}
      * <p>
-     * Observe the jagged staircase edges on the spheres and diagonal triangles.
-     * Render time is printed to the console.
+     * Observe the jagged staircase edges on the orbs and the diagonal
+     * mountain triangles. Render time is printed to the console.
      */
     @Test
-    void testAntiAliasingBefore() {
+    void testShowcaseBefore() {
         Scene scene = buildScene();
 
         long start = System.currentTimeMillis();
@@ -179,24 +179,24 @@ class AntiAliasingTests {
         buildCameraBuilder(scene)
                 .build()
                 .renderImage()
-                .writeToImage("antiAliasing_before");
+                .writeToImage("AntiAliasingTests_before");
 
         long elapsed = System.currentTimeMillis() - start;
-        System.out.printf("%-35s %d ms%n", "Render time (no anti-aliasing):", elapsed);
+        System.out.printf("%-40s %d ms%n", "Render time (no anti-aliasing):", elapsed);
     }
 
     /**
-     * Renders the demo scene WITH anti-aliasing (81 samples per pixel, 9x9 Grid).
+     * Renders the showcase scene WITH anti-aliasing (81 samples per pixel, 9x9 grid).
      * <p>
-     * Output file: {@code antiAliasing_after.png}
+     * Output file: {@code AntiAliasingTests_after.png}
      * <p>
-     * Compare with {@code antiAliasing_before.png}: edges on spheres and
-     * diagonal triangles should appear visibly smoother.
-     * Render time is printed to the console to illustrate the performance cost.
+     * Compare with {@code AntiAliasingTests_before.png}: the orb
+     * silhouettes and the diagonal triangle edges should appear visibly
+     * smoother. Render time is printed to illustrate the performance cost.
      */
     @Test
     @SuppressWarnings("java:S109")
-    void testAntiAliasingAfter() {
+    void testShowcaseAfter() {
         Scene scene = buildScene();
 
         long start = System.currentTimeMillis();
@@ -209,9 +209,9 @@ class AntiAliasingTests {
                 )
                 .build()
                 .renderImage()
-                .writeToImage("antiAliasing_after");
+                .writeToImage("AntiAliasingTests_after");
 
         long elapsed = System.currentTimeMillis() - start;
-        System.out.printf("%-35s %d ms%n", "Render time (anti-aliasing 81 samples):", elapsed);
+        System.out.printf("%-40s %d ms%n", "Render time (anti-aliasing 81 samples):", elapsed);
     }
 }
