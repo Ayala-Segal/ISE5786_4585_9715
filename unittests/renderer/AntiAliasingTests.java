@@ -157,7 +157,7 @@ class AntiAliasingTests{
                 .setVpDistance(400)
                 .setVpSize(200, 200)
                 .setResolution(500, 500)
-                .setRayTracer(scene, RayTracerType.SIMPLE);
+                .setRayTracer(scene, RayTracerType.SIMPLE) ;
     }
 
     // ── Tests ────────────────────────────────────────────────────────────────
@@ -202,11 +202,8 @@ class AntiAliasingTests{
         long start = System.currentTimeMillis();
 
         buildCameraBuilder(scene)
-                .setAntiAliasing(
-                        new Blackboard()
-                                .setSize(PIXEL_SIZE)
-                                .setNumSamples(NUM_SAMPLES)
-                )
+                .setAntiAliasing(NUM_SAMPLES, PIXEL_SIZE)
+                .setDebugPrint(1)
                 .build()
                 .renderImage()
                 .writeToImage("AntiAliasingTests_after");

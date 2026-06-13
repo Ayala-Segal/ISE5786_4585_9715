@@ -359,21 +359,71 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Configures the camera's anti-aliasing super-sampling behavior.
-         * <p>
-         * When a {@link Blackboard} with more than one sample and a non-zero size
-         * is provided, the camera casts multiple rays through each pixel
-         * (distributed across the pixel area) and averages the resulting colors,
-         * producing smoother edges and reducing pixelation artifacts.
-         * <p>
-         * To disable anti-aliasing, pass a default {@code new Blackboard()}
-         * or set {@code numSamples=1} / {@code size=0}.
+         * Configures anti-aliasing super-sampling using default shape (SQUARE)
+         * and sampling pattern (GRID).
          *
-         * @param blackboard the sampling configuration; must not be {@code null}
+         * @param numSamples number of sample points per pixel (prefer perfect squares: 4, 9, 25…);
+         *                   use {@code 1} to disable anti-aliasing
+         * @param size       side length of the sampling area; must not exceed the pixel size —
+         *                   validated at {@link #build()}; use {@code 0} to disable anti-aliasing
          * @return this Builder (for chaining)
          */
-        public Builder setAntiAliasing(Blackboard blackboard) {
-            _camera._antiAliasingBlackboard = blackboard;
+        public Builder setAntiAliasing(int numSamples, double size) {
+            return setAntiAliasing(numSamples, size,
+                    Blackboard.TargetShape.SQUARE,
+                    Blackboard.SamplingPattern.GRID);
+        }
+
+        /**
+         * Configures anti-aliasing super-sampling with a specified target shape,
+         * using the default sampling pattern (GRID).
+         *
+         * @param numSamples number of sample points per pixel (prefer perfect squares: 4, 9, 25…);
+         *                   use {@code 1} to disable anti-aliasing
+         * @param size       side length (SQUARE) or radius (CIRCLE) of the sampling area;
+         *                   must not exceed the pixel size — validated at {@link #build()};
+         *                   use {@code 0} to disable anti-aliasing
+         * @param shape      shape of the 2D target area ({@link Blackboard.TargetShape#SQUARE}
+         *                   or {@link Blackboard.TargetShape#CIRCLE})
+         * @return this Builder (for chaining)
+         */
+        public Builder setAntiAliasing(int numSamples, double size,
+                                       Blackboard.TargetShape shape) {
+            return setAntiAliasing(numSamples, size, shape,
+                    Blackboard.SamplingPattern.GRID);
+        }
+
+        /**
+         * Configures anti-aliasing super-sampling with full control over all parameters.
+         * <p>
+         * When {@code numSamples > 1} and {@code size > 0}, the camera casts multiple rays
+         * through each pixel, distributed across the pixel area according to the given
+         * shape and pattern, and averages the resulting colors to produce smoother edges.
+         * <p>
+         * The {@code size} value is validated against the actual pixel dimensions at
+         * {@link #build()} — it must not exceed the smaller of pixel width and pixel height.
+         *
+         * @param numSamples number of sample points per pixel (prefer perfect squares: 4, 9, 25…);
+         *                   use {@code 1} to disable anti-aliasing
+         * @param size       side length (SQUARE) or radius (CIRCLE) of the sampling area;
+         *                   must not exceed the pixel size — validated at {@link #build()};
+         *                   use {@code 0} to disable anti-aliasing
+         * @param shape      shape of the 2D target area ({@link Blackboard.TargetShape#SQUARE}
+         *                   or {@link Blackboard.TargetShape#CIRCLE})
+         * @param pattern    sampling pattern ({@link Blackboard.SamplingPattern#GRID},
+         *                   {@link Blackboard.SamplingPattern#STOCHASTIC},
+         *                   or {@link Blackboard.SamplingPattern#JITTERED})
+         * @return this Builder (for chaining)
+         * @throws IllegalArgumentException if {@code size} exceeds the pixel size (thrown at {@link #build()})
+         */
+        public Builder setAntiAliasing(int numSamples, double size,
+                                       Blackboard.TargetShape shape,
+                                       Blackboard.SamplingPattern pattern) {
+            _camera._antiAliasingBlackboard = new Blackboard()
+                    .setNumSamples(numSamples)
+                    .setSize(size)
+                    .setShape(shape)
+                    .setSamplingPattern(pattern);
             return this;
         }
 
@@ -490,6 +540,16 @@ public class Camera implements Cloneable {
             _camera._vpCenter    = _camera._p0.add(_camera._vTo.scale(_distance));
             _camera._pixelWidth  = _width  / _nX;
             _camera._pixelHeight = _height / _nY;
+
+            // ── בדיקת size של anti-aliasing ──────────────────────────────────────
+            double bbSize = _camera._antiAliasingBlackboard.getSize();
+            if (!Util.isZero(bbSize)) {
+                double minPixel = Math.min(_camera._pixelWidth, _camera._pixelHeight);
+                if (bbSize > minPixel)
+                    throw new IllegalArgumentException(
+                            "Anti-aliasing size (%.4f) must not exceed pixel size (%.4f)"
+                                    .formatted(bbSize, minPixel));
+            }
         }
     }
 }

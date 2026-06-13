@@ -318,7 +318,7 @@ class CameraTests {
                 () -> baseBuilder()
                         .setDirection(V_TO, V_UP)
                         .setVpSize(6, 6)
-                        .setAntiAliasing(new Blackboard().setSize(2).setNumSamples(9))
+                        .setAntiAliasing(9,6)
                         .build(),
                 "Build with 9-sample Blackboard should not throw"
         );
@@ -335,7 +335,7 @@ class CameraTests {
                 .setDirection(V_TO, V_UP)
                 .setVpSize(6, 6)
                 .setResolution(3, 3)
-                .setAntiAliasing(new Blackboard().setSize(2).setNumSamples(1))
+                .setAntiAliasing(1,2)
                 .build();
 
         assertEquals(
@@ -351,7 +351,7 @@ class CameraTests {
                 () -> baseBuilder()
                         .setDirection(V_TO, V_UP)
                         .setVpSize(6, 6)
-                        .setAntiAliasing(new Blackboard().setSize(0).setNumSamples(81))
+                        .setAntiAliasing(81,0)
                         .build(),
                 "size=0 should disable anti-aliasing silently and not throw"
         );
@@ -367,7 +367,7 @@ class CameraTests {
                 .setDirection(V_TO, V_UP)
                 .setVpSize(6, 6)
                 .setResolution(3, 3)
-                .setAntiAliasing(new Blackboard().setSize(0).setNumSamples(81))
+                .setAntiAliasing(81,0)
                 .build();
 
         assertEquals(
@@ -381,7 +381,7 @@ class CameraTests {
                 () -> baseBuilder()
                         .setDirection(V_TO, V_UP)
                         .setVpSize(6, 6)
-                        .setAntiAliasing(new Blackboard().setSize(2).setNumSamples(81))
+                        .setAntiAliasing(81,2)
                         .build(),
                 "81-sample Blackboard should not throw"
         );
@@ -391,7 +391,7 @@ class CameraTests {
                 () -> baseBuilder()
                         .setDirection(V_TO, V_UP)
                         .setVpSize(6, 6)
-                        .setAntiAliasing(new Blackboard().setSize(2).setNumSamples(4))
+                        .setAntiAliasing(4,2)
                         .build(),
                 "4-sample Blackboard should not throw"
         );
