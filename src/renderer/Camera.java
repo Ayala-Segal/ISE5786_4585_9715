@@ -53,6 +53,20 @@ public class Camera implements Cloneable {
      * if it is zero - there is no progress output
      */
     private double printInterval = 0;
+
+    /**
+     * Maximum recursion depth for Adaptive Super-Sampling.<br>
+     * 0 = disabled (regular super-sampling is used instead).<br>
+     * Depth 1 → 2×2 sub-regions, depth 2 → 3×3, depth 3 → 5×5, etc.
+     */
+    private int _adaptiveMaxDepth = 0;
+
+    /**
+     * Color difference threshold for Adaptive Super-Sampling.<br>
+     * If the maximum channel difference between corner colors is below
+     * this value, the region is considered uniform and recursion stops.
+     */
+    private double _adaptiveThreshold = 0.0;
     /**
      * Pixel manager for supporting:
      * <ul>
@@ -130,22 +144,158 @@ public class Camera implements Cloneable {
      * @return averaged color for this pixel
      */
     private Color castRayBeam(int xIndex, int yIndex) {
-        Blackboard bb = _antiAliasingBlackboard;
-        Point center = getPixelCenter(xIndex, yIndex);
+        Blackboard bb     = _antiAliasingBlackboard;
+        Point      center = getPixelCenter(xIndex, yIndex);
 
         // anti-aliasing disabled: single ray through pixel center
         if (bb.getNumSamples() <= 1 || Util.isZero(bb.getSize()))
             return _rayTracer.traceRay(new Ray(_p0, center.subtract(_p0)));
 
-        // anti-aliasing enabled: generate sample points inside the pixel
+        // Adaptive Super-Sampling enabled: recursive adaptive sampling
+        if (_adaptiveMaxDepth > 0) {
+            double halfSize = bb.getSize() / 2.0;
+            return adaptiveSample(center, halfSize, _adaptiveMaxDepth,
+                    null, null, null, null);
+        }
+
+        // regular super-sampling: generate all sample points and average
         List<Point> samplePoints = bb.generatePoints(center, _vRight, _vUp);
 
         Color sum = Color.BLACK;
         for (Point p : samplePoints)
             sum = sum.add(_rayTracer.traceRay(new Ray(_p0, p.subtract(_p0))));
 
-        // divide by total sample count (not by hits) — physically correct average
         return sum.reduce(samplePoints.size());
+    }
+
+    /**
+     * Recursively computes the color for a square sub-region using
+     * Adaptive Super-Sampling.
+     * <p>
+     * The four corners of the region are sampled. If all corners are
+     * sufficiently similar (below {@link #_adaptiveThreshold}), their
+     * average is returned immediately. Otherwise, the region is split
+     * into four quadrants and each is sampled recursively.
+     * <p>
+     * Corner colors from the parent call are passed in to avoid
+     * recomputing shared edges between adjacent quadrants.
+     *
+     * @param center   center point of this region on the view plane
+     * @param halfSize half the side length of this region
+     * @param depth    remaining recursion depth (stops at 0)
+     * @param cTL      pre-computed top-left  corner color, or null to compute
+     * @param cTR      pre-computed top-right corner color, or null to compute
+     * @param cBL      pre-computed bottom-left  corner color, or null to compute
+     * @param cBR      pre-computed bottom-right corner color, or null to compute
+     * @return averaged color for this region
+     */
+    private Color adaptiveSample(Point center, double halfSize, int depth,
+                                 Color cTL, Color cTR, Color cBL, Color cBR) {
+        // compute corner points
+        Point pTL = cornerPoint(center, -halfSize,  halfSize);
+        Point pTR = cornerPoint(center,  halfSize,  halfSize);
+        Point pBL = cornerPoint(center, -halfSize, -halfSize);
+        Point pBR = cornerPoint(center,  halfSize, -halfSize);
+
+        // compute any missing corner colors
+        if (cTL == null) cTL = tracePoint(pTL);
+        if (cTR == null) cTR = tracePoint(pTR);
+        if (cBL == null) cBL = tracePoint(pBL);
+        if (cBR == null) cBR = tracePoint(pBR);
+
+        // if uniform enough or max depth reached — return average
+        if (depth == 0 || isUniform(cTL, cTR, cBL, cBR))
+            return cTL.add(cTR).add(cBL).add(cBR).reduce(4);
+
+        double quarter = halfSize / 2.0;
+
+        // center color (shared by all four quadrants)
+        Color cCenter = tracePoint(center);
+
+        // edge midpoints (each shared by two quadrants)
+        Color cTop    = tracePoint(cornerPoint(center,       0,  halfSize));
+        Color cBottom = tracePoint(cornerPoint(center,       0, -halfSize));
+        Color cLeft   = tracePoint(cornerPoint(center, -halfSize,       0));
+        Color cRight  = tracePoint(cornerPoint(center,  halfSize,       0));
+
+        // recurse into four quadrants, passing shared corners to avoid recomputation
+        Color q1 = adaptiveSample(cornerPoint(center, -quarter,  quarter), quarter, depth - 1,
+                cTL, cTop, cLeft, cCenter);
+        Color q2 = adaptiveSample(cornerPoint(center,  quarter,  quarter), quarter, depth - 1,
+                cTop, cTR, cCenter, cRight);
+        Color q3 = adaptiveSample(cornerPoint(center, -quarter, -quarter), quarter, depth - 1,
+                cLeft, cCenter, cBL, cBottom);
+        Color q4 = adaptiveSample(cornerPoint(center,  quarter, -quarter), quarter, depth - 1,
+                cCenter, cRight, cBottom, cBR);
+
+        return q1.add(q2).add(q3).add(q4).reduce(4);
+    }
+
+    /**
+     * Computes a corner point offset from a center by (dx, dy)
+     * along the camera's right and up axes.
+     *
+     * @param center base point
+     * @param dx     offset along _vRight
+     * @param dy     offset along _vUp
+     * @return the offset point on the view plane
+     */
+    private Point cornerPoint(Point center, double dx, double dy) {
+        Point p = center;
+        if (!Util.isZero(dx)) p = p.add(_vRight.scale(dx));
+        if (!Util.isZero(dy)) p = p.add(_vUp.scale(dy));
+        return p;
+    }
+
+    /**
+     * Traces a single ray from the camera origin through a point on the
+     * view plane and returns the resulting color.
+     *
+     * @param p target point on the view plane
+     * @return color returned by the ray tracer
+     */
+    private Color tracePoint(Point p) {
+        return _rayTracer.traceRay(new Ray(_p0, p.subtract(_p0)));
+    }
+
+    /**
+     * Checks whether four corner colors are uniform enough to stop recursion.
+     * Uniformity is determined by comparing the maximum per-channel difference
+     * between any two corners against {@link #_adaptiveThreshold}.
+     *
+     * @param c1 top-left color
+     * @param c2 top-right color
+     * @param c3 bottom-left color
+     * @param c4 bottom-right color
+     * @return true if all corners are within threshold of each other
+     */
+    private boolean isUniform(Color c1, Color c2, Color c3, Color c4) {
+        return maxDiff(c1, c2) < _adaptiveThreshold
+                && maxDiff(c1, c3) < _adaptiveThreshold
+                && maxDiff(c1, c4) < _adaptiveThreshold
+                && maxDiff(c2, c3) < _adaptiveThreshold
+                && maxDiff(c2, c4) < _adaptiveThreshold
+                && maxDiff(c3, c4) < _adaptiveThreshold;
+    }
+
+    /**
+     * Returns the maximum absolute difference across all three color channels
+     * between two colors.
+     *
+     * @param a first color
+     * @param b second color
+     * @return max channel difference in [0, 255]
+     */
+    private double maxDiff(Color a, Color b) {
+        var ca = a.getColor();
+        var cb = b.getColor();
+        return Math.max(
+                Math.abs(ca.getRed()   - cb.getRed()),
+                Math.max(
+                        Math.abs(ca.getGreen() - cb.getGreen()),
+                        Math.abs(ca.getBlue()  - cb.getBlue())
+                )
+        );
     }
 
     /**
@@ -450,7 +600,39 @@ public class Camera implements Cloneable {
             return this;
         }
         /**
-         * Set debug printing interval. If it's zero - there won't be printing at all
+         * Enables Adaptive Super-Sampling on top of the existing anti-aliasing beam.
+         * <p>
+         * When enabled, instead of sampling all grid points uniformly, the pixel
+         * is recursively subdivided only where color variation exceeds the threshold.
+         * <p>
+         * Must be combined with {@link #setAntiAliasing} — the beam size from
+         * anti-aliasing defines the initial region size for ASS.
+         * <p>
+         * Recursion depth guide:
+         * <ul>
+         *   <li>0 — disabled (regular anti-aliasing)</li>
+         *   <li>1 — 2×2 sub-regions</li>
+         *   <li>2 — 3×3 equivalent</li>
+         *   <li>3 — 5×5 equivalent</li>
+         *   <li>4 — 9×9 equivalent (high quality)</li>
+         * </ul>
+         *
+         * @param maxDepth        maximum recursion depth (0 = disabled)
+         * @param colorThreshold  max per-channel color difference [0–255] to
+         *                        consider a region uniform; typical value: 10–30
+         * @return this Builder (for chaining)
+         */
+        public Builder setAdaptiveSuperSampling(int maxDepth, double colorThreshold) {
+            if (maxDepth < 0)
+                throw new IllegalArgumentException("ASS depth must be non-negative");
+            if (colorThreshold < 0)
+                throw new IllegalArgumentException("ASS threshold must be non-negative");
+            _camera._adaptiveMaxDepth  = maxDepth;
+            _camera._adaptiveThreshold = colorThreshold;
+            return this;
+        }
+
+        /**
          * @param interval printing interval in %
          * @return builder object itself
          */
@@ -541,7 +723,7 @@ public class Camera implements Cloneable {
             _camera._pixelWidth  = _width  / _nX;
             _camera._pixelHeight = _height / _nY;
 
-            // ── בדיקת size של anti-aliasing ──────────────────────────────────────
+            // ── Check size of anti-aliasing ──────────────────────────────────────
             double bbSize = _camera._antiAliasingBlackboard.getSize();
             if (!Util.isZero(bbSize)) {
                 double minPixel = Math.min(_camera._pixelWidth, _camera._pixelHeight);
